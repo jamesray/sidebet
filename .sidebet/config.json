@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "projectId": "prj_09609520",
+  "name": "sidebet-monorepo",
+  "tests": {
+    "command": "pnpm test",
+    "timeoutSec": 900
+  },
+  "models": {
+    "compare": [
+      "sonnet",
+      "codex"
+    ],
+    "aliases": {
+      "sonnet": "anthropic/claude-sonnet-4-5",
+      "opus": "anthropic/claude-opus-4-7",
+      "codex": "openai/gpt-5-codex",
+      "gpt5": "openai/gpt-5"
+    }
+  },
+  "compare": {
+    "setup": "pnpm install --offline --frozen-lockfile",
+    "timeoutSec": 1200
+  },
+  "context": {
+    "docs": [
+      "CONTRIBUTING.md",
+      "docs/architecture.md"
+    ]
+  }
+}

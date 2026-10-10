@@ -2,7 +2,5 @@ node_modules
 dist
 .turbo
 *.tsbuildinfo
-.sidebet/
-!examples/**/.sidebet/
 coverage
 .DS_Store
