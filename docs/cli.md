@@ -71,4 +71,4 @@ Apply: previews the files (`M*` marks files you also edited), requires confirmat
 `sidebet clean` removes leftover Sidebet worktrees for this project. Results stay in `refs/sidebet/`.
 
 ## Environment
-`SIDEBET_HOME` data dir (default `~/.sidebet`), `NO_COLOR`, `SIDEBET_THEME=light|dark` (otherwise detected from `COLORFGBG`), `PI_CODING_AGENT_DIR` (Pi's), `SIDEBET_RUNTIME=fake` + `SIDEBET_FAKE_SCRIPT=<json>` for an offline fake runtime (testing/demos only).
+`SIDEBET_HOME` data dir (default `~/.sidebet`), `NO_COLOR`, `SIDEBET_THEME=light|dark` (otherwise detected from `COLORFGBG`), `SIDEBET_CHIP=red|blue|green|violet|black|white|random` (overrides `ui.chip`), `PI_CODING_AGENT_DIR` (Pi's), `SIDEBET_RUNTIME=fake` + `SIDEBET_FAKE_SCRIPT=<json>` for an offline fake runtime (testing/demos only).

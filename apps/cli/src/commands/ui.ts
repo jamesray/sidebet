@@ -11,6 +11,7 @@ import { type CliContext, openApp } from '../app.js'
 import { parse } from '../args.js'
 import { VERSION } from '../help.js'
 import { header } from '../style/banner.js'
+import { renderChipSvg, resolveChip } from '../style/chip.js'
 
 const PAGE = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'web', 'index.html')
 
@@ -106,6 +107,17 @@ export const createUiServer = (api: Api, page: string) =>
       return
     }
     if (handleApi(api, url, res)) return
+    if (url.pathname === '/chip.svg') {
+      const palette = resolveChip(
+        url.searchParams.get('variant') ?? process.env.SIDEBET_CHIP ?? api.project.config.ui.chip,
+      )
+      res.writeHead(200, {
+        'content-type': 'image/svg+xml; charset=utf-8',
+        'cache-control': 'no-store',
+      })
+      res.end(renderChipSvg(palette, { scale: 4 }))
+      return
+    }
     res.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' })
     res.end(page)
   })

@@ -69,6 +69,12 @@ export const ConfigSchema = z.object({
       dual: z.boolean().default(false),
     })
     .default({ timeoutSec: 1800, runTests: false, dual: false }),
+  ui: z
+    .object({
+      /** Chip colour in the terminal header and web view: red, blue, green, violet, black, white, or random. */
+      chip: z.string().default('red'),
+    })
+    .default({ chip: 'red' }),
   policy: RawPolicySchema.default({}),
 })
 export type SidebetConfig = z.infer<typeof ConfigSchema>

@@ -53,6 +53,7 @@ export const openApp = async (ctx: CliContext): Promise<App> => {
     projectId: project.projectId,
     initialized: project.initialized,
   })
+  ctx.ui.p.setChip(project.config.ui.chip)
   const storage = await openStorageFor(ctx.env)
   return { project, storage, close: () => storage.close() }
 }

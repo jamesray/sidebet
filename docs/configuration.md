@@ -34,6 +34,7 @@ Everything is optional. Invalid config fails early, naming the file and field. `
     "keepWorktrees": false
   },
   "run": { "timeoutSec": 1800, "runTests": false, "dual": false },
+  "ui": { "chip": "red" },           // header chip: red, blue, green, violet, black, white, or random
   "policy": { /* see below */ }
 }
 ```

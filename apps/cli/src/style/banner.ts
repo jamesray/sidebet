@@ -7,9 +7,7 @@ export const TAGLINE = 'Same context. Different models. Better decisions.'
  * Built from block elements so it stays crisp in every terminal font.
  */
 export const chip = (p: Palette): [string, string] => {
-  const ring = p.fg('error')
-  const notch = p.fg('text')
-  const core = p.fg('gold')
+  const { ring, notch, core } = p.chip
   return [
     `${notch('▗')}${ring('▟')}${core('▀')}${ring('▙')}${notch('▖')}`,
     `${notch('▝')}${ring('▜')}${core('▄')}${ring('▛')}${notch('▘')}`,
@@ -40,7 +38,7 @@ export const header = (p: Palette, version: string, meta: HeaderMeta = {}): stri
 
 /** Inline wordmark for dashboards and footers. */
 export const wordmark = (p: Palette): string =>
-  `${p.fg('error')('◉')} ${p.bold(p.fg('accent')('sidebet'))}`
+  `${p.chip.ring('◉')} ${p.bold(p.fg('accent')('sidebet'))}`
 
 /** Prediction record: a filled chip for a call that matched the recorded preference, hollow for a miss. */
 export const CHIP = { hit: '◉', miss: '◎' }

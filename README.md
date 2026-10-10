@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/chip.svg" width="88" alt="The Sidebet chip">
+  <img src="docs/assets/chip-red.svg" width="96" alt="The Sidebet chip">
 </p>
 
 # Sidebet

@@ -123,3 +123,42 @@ describe('dashboard', () => {
     expect(renderDashboard(plain, s, 100, 10_000).join('\n')).toContain('cancelling')
   })
 })
+
+describe('chip', () => {
+  it('renders deterministic pixel art inside the grid for every palette', async () => {
+    const { CHIP_PALETTES, renderChipSvg, resolveChip } = await import('../src/style/chip.js')
+    for (const p of Object.values(CHIP_PALETTES)) {
+      const svg = renderChipSvg(p)
+      expect(svg).toBe(renderChipSvg(p))
+      expect(svg).toContain('shape-rendering="crispEdges"')
+      expect(svg).toContain(`(${p.name})`)
+      for (const m of svg.matchAll(/x="(\d+)" y="(\d+)" width="(\d+)"/g)) {
+        expect(Number(m[1]) + Number(m[3])).toBeLessThanOrEqual(32)
+        expect(Number(m[2])).toBeLessThan(32)
+      }
+      expect(svg).toContain(p.outline)
+      expect(svg).toContain(p.notch)
+      expect(svg).toContain(p.core)
+    }
+    expect(resolveChip(undefined).name).toBe('red')
+    expect(resolveChip('nope').name).toBe('red')
+    expect(resolveChip('random', 0).name).toBe('red')
+    expect(resolveChip('random', 0.99).name).toBe('white')
+  })
+  it('the terminal glyph follows ui.chip, and SIDEBET_CHIP wins', () => {
+    const env = { COLORTERM: 'truecolor' }
+    const p = createPalette({ color: true, env })
+    const red = header(p, '0', {})[0]
+    p.setChip('blue')
+    expect(header(p, '0', {})[0]).not.toBe(red)
+    expect(p.chip.name).toBe('blue')
+    const pinned = createPalette({
+      color: true,
+      env: { ...env, SIDEBET_CHIP: 'green' },
+      chip: 'red',
+    })
+    expect(pinned.chip.name).toBe('green')
+    pinned.setChip('blue')
+    expect(pinned.chip.name).toBe('green')
+  })
+})

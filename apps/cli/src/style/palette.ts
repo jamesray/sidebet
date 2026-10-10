@@ -6,6 +6,7 @@ import {
   type TerminalColorMode,
   type TextAttributes,
 } from '@earendil-works/pi-tui'
+import { type ChipPalette, resolveChip } from './chip.js'
 
 export type Token =
   | 'accent'
@@ -41,6 +42,10 @@ export interface Palette {
   italic: Styler
   /** Colour for attempt lane n (A, B, C, D, then wraps). */
   lane(index: number): Styler
+  /** The chip's three terminal colours. */
+  chip: { name: string; ring: Styler; notch: Styler; core: Styler }
+  /** Switch chip palette after creation (config is read after the first header may print). */
+  setChip(name: string | undefined): void
 }
 
 /** OKLCH keeps perceived lightness even, so A/B lanes read as equals rather than one shouting. */
@@ -85,6 +90,8 @@ export interface PaletteOptions {
   /** Force colours on or off. Default: on for a TTY unless NO_COLOR / TERM=dumb. */
   color?: boolean
   isTTY?: boolean
+  /** Chip palette name, or "random". SIDEBET_CHIP in the environment wins. */
+  chip?: string
 }
 
 /** Light terminals announce themselves through COLORFGBG ("fg;bg", bg >= 7 is light) or SIDEBET_THEME. */
@@ -119,6 +126,17 @@ export const createPalette = (options: PaletteOptions = {}): Palette => {
     (token: Token): Styler =>
     (text) =>
       style(text, { fg: token })
+  const raw =
+    (c: Color): Styler =>
+    (text) =>
+      enabled && text ? styleText(text, { fg: c }, mode) : text
+  const chipStylers = (cp: ChipPalette) => ({
+    name: cp.name,
+    ring: raw(oklchColor(...cp.term.ring)),
+    notch: raw(oklchColor(...cp.term.notch)),
+    core: raw(oklchColor(...cp.term.core)),
+  })
+  const chip = chipStylers(resolveChip(env.SIDEBET_CHIP ?? options.chip))
   return {
     enabled,
     mode: enabled ? mode : 'none',
@@ -129,5 +147,10 @@ export const createPalette = (options: PaletteOptions = {}): Palette => {
     dim: (t) => style(t, { fg: 'dim' }),
     italic: (t) => style(t, { italic: true }),
     lane: (i) => fg(LANES[i % LANES.length] ?? 'laneA'),
+    chip,
+    setChip(name) {
+      if (env.SIDEBET_CHIP) return
+      Object.assign(chip, chipStylers(resolveChip(name)))
+    },
   }
 }
