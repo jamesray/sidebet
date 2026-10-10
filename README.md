@@ -89,6 +89,7 @@ Sidebet's central record is a `SidebetRun` with one or more `SidebetAttempt`s; i
 
 ## Documentation
 
+- [Getting started: a walkthrough for first-time users](docs/getting-started.md)
 - [CLI reference](docs/cli.md)
 - [Configuration reference](docs/configuration.md)
 - [Pi integration guide](docs/pi-integration.md)
