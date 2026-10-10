@@ -102,8 +102,11 @@ const rows: Row[] = [
 export const printMetrics = (ui: Ui, detail: RunDetail, options: { title?: string } = {}): void => {
   const attempts = detail.attempts
   if (attempts.length === 0) return
-  ui.out(ui.bold(options.title ?? 'Metrics'))
-  const header = ['', ...attempts.map((a) => ui.bold(`${a.attempt.label}  ${a.attempt.model}`))]
+  ui.out(ui.bold(ui.accent(options.title ?? 'Metrics')))
+  const header = [
+    '',
+    ...attempts.map((a, i) => ui.bold(ui.p.lane(i)(`${a.attempt.label}  ${a.attempt.model}`))),
+  ]
   const body = rows.map((r) => {
     const values = attempts.map((a) => r.value(a))
     let bestIdx = -1

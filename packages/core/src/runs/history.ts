@@ -1,6 +1,7 @@
 import type {
   Application,
   Artifact,
+  Bet,
   Evaluation,
   HumanReview,
   SidebetAttempt,
@@ -27,6 +28,7 @@ export interface RunDetail {
   attempts: AttemptDetail[]
   reviews: HumanReview[]
   applications: Application[]
+  bets: Bet[]
 }
 
 export const loadRunDetail = (storage: Storage, runId: string): RunDetail => {
@@ -49,6 +51,7 @@ export const loadRunDetail = (storage: Storage, runId: string): RunDetail => {
     attempts,
     reviews: storage.records.list('review', { runId }),
     applications: storage.records.list('application', { runId }),
+    bets: storage.records.list('bet', { runId }),
   }
 }
 

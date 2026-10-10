@@ -30,11 +30,15 @@ cd apps/cli && pnpm link --global   # puts `sidebet` on your PATH
 sidebet doctor
 ```
 
-Optional Pi extension (adds `/sidebet`, `/sidebet-context`, `/sidebet-memory`, `/sidebet-compare` inside Pi):
+Optional Pi extension (adds `/sidebet`, `/sidebet-context`, `/sidebet-memory`, `/sidebet-compare`, `/sidebet-review`, `/sidebet-odds` inside Pi):
 
 ```bash
 pi install ./extensions/pi
 ```
+
+## The terminal experience
+
+Sidebet is built on the same terminal toolkit as Pi (`@earendil-works/pi-tui`), so it looks and behaves like Pi: a two-line header with the Sidebet chip, a live dashboard during comparisons with one card per model (status, time, tokens, cost, current tool), a menu-driven review with a full-screen diff viewer, and `odds` with inline meters. Colours adapt to light and dark terminals, degrade to 256 colours, and switch off under `NO_COLOR`, `CI`, or when output is piped; `--json` is unaffected.
 
 ## What you get
 
@@ -48,6 +52,7 @@ pi install ./extensions/pi
 | `sidebet review` | Side-by-side metrics (time, time to first edit, turns, tool calls, tokens, cost, lines changed, tests), diffs, a recorded verdict, and a safe, confirmed, undoable apply. |
 | `sidebet runs`, `rerun` | Full history; rerun with the **original** or **current** context, stated explicitly. |
 | `sidebet odds` | Your own evidence about which model works for you. Sample sizes always shown. Tests and preference never blended. |
+| `sidebet bet A` | Record which result you expect to prefer before reviewing; `odds` tracks how often your calls match. |
 | `sidebet context`, `memory` | See exactly what the agent receives; persistent project/global memory with FTS5 search. |
 | `sidebet policy check`, `doctor` | Why a model or tool was denied; what is truly enforced and what is not. |
 

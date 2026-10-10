@@ -1,7 +1,11 @@
+import { matchesKey, ProcessTerminal, TuiMainScreen } from '@earendil-works/pi-tui'
 import type { AttemptStatus, Reporter, RuntimeEvent } from '@sidebet/core'
-import { formatCost, formatDuration, formatTokens, truncate, type Ui } from './ui.js'
+import { header } from './style/banner.js'
+import { bar, fit, hr, padEnd, panel, sparkline, spinnerFrame, termWidth } from './style/draw.js'
+import type { Palette } from './style/palette.js'
+import { compactTokens, formatCost, formatDuration, truncate, type Ui } from './ui.js'
 
-interface Gauge {
+export interface Gauge {
   label: string
   model: string
   status: AttemptStatus | 'pending'
@@ -10,103 +14,236 @@ interface Gauge {
   turns: number
   tools: number
   denied: number
+  errors: number
   input: number
   output: number
   cacheRead: number
   cost?: number
   current: string
   firstEditAt?: number
+  /** Output tokens per turn, for the trend line. */
+  perTurn: number[]
+  error?: string
 }
 
-const SPIN = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
+export interface DashboardState {
+  task: string
+  version: string
+  gauges: Gauge[]
+  startedAt: number
+  tick: number
+  /** Messages printed above the cards (warnings, phases). Newest last. */
+  notes: string[]
+  cancelling: boolean
+}
 
-const gaugeLine = (ui: Ui, g: Gauge, now: number, tick: number): string => {
+const statusGlyph = (p: Palette, g: Gauge, tick: number): string => {
+  switch (g.status) {
+    case 'running':
+      return p.fg('accent')(spinnerFrame(tick))
+    case 'completed':
+      return p.fg('success')('✓')
+    case 'pending':
+      return p.dim('·')
+    default:
+      return p.fg('error')('✕')
+  }
+}
+
+const statusWord = (p: Palette, g: Gauge): string => {
+  if (g.status === 'completed') return p.fg('success')('completed')
+  if (g.status === 'running') return p.fg('accent')('running')
+  if (g.status === 'pending') return p.dim('waiting')
+  return p.fg('error')(g.status)
+}
+
+/** One card per attempt. Pure: same state and width give the same lines. */
+export const renderCard = (
+  p: Palette,
+  g: Gauge,
+  index: number,
+  width: number,
+  now: number,
+  tick: number,
+): string[] => {
+  const lane = p.lane(index)
   const elapsed = g.startedAt ? (g.endedAt ?? now) - g.startedAt : 0
-  const icon =
+  const total = g.input + g.output + g.cacheRead
+  const inner = width - 4
+  const labelW = 11
+  const row = (label: string, value: string): string => `${p.dim(padEnd(label, labelW))}${value}`
+  const lines: string[] = []
+  lines.push(
+    `${statusGlyph(p, g, tick)} ${statusWord(p, g)}${p.dim(' · ')}${formatDuration(elapsed)}${g.firstEditAt && g.startedAt ? p.dim(` · first edit ${formatDuration(g.firstEditAt - g.startedAt)}`) : ''}`,
+  )
+  lines.push(
+    row(
+      'tokens',
+      `${padEnd(compactTokens(total), 7)}${p.dim(`↑${compactTokens(g.input + g.cacheRead)} ↓${compactTokens(g.output)}`)}`,
+    ),
+  )
+  const meterW = Math.max(8, Math.min(24, inner - labelW - 12))
+  const cost = g.cost !== undefined ? formatCost(g.cost) : p.dim('cost n/a')
+  lines.push(
+    row(
+      'turns',
+      `${padEnd(String(g.turns), 7)}${g.perTurn.length > 1 ? p.fg('muted')(sparkline(g.perTurn, meterW)) : ''}`,
+    ),
+  )
+  lines.push(
+    row(
+      'tools',
+      `${padEnd(String(g.tools), 7)}${g.denied ? p.fg('error')(`${g.denied} blocked `) : ''}${g.errors ? p.fg('warning')(`${g.errors} failed`) : ''}`,
+    ),
+  )
+  lines.push(row('cost', cost))
+  const activity =
     g.status === 'running'
-      ? ui.cyan(SPIN[tick % SPIN.length] ?? '•')
-      : g.status === 'completed'
-        ? ui.green('✓')
-        : g.status === 'pending'
-          ? ui.dim('·')
-          : ui.red('✗')
-  const tok = g.input + g.output + g.cacheRead
-  const parts = [
-    formatDuration(elapsed),
-    `${g.turns} ${g.turns === 1 ? 'turn' : 'turns'}`,
-    `${g.tools} ${g.tools === 1 ? 'tool' : 'tools'}${g.denied ? ui.red(` (${g.denied} blocked)`) : ''}`,
-    `${formatTokens(tok)} tok ${ui.dim(`↑${formatTokens(g.input + g.cacheRead)} ↓${formatTokens(g.output)}`)}`,
-    g.cost !== undefined ? formatCost(g.cost) : ui.dim('cost n/a'),
-  ]
-  if (g.firstEditAt && g.startedAt)
-    parts.push(ui.dim(`first edit ${formatDuration(g.firstEditAt - g.startedAt)}`))
-  const tail =
-    g.status === 'running'
-      ? ui.dim(truncate(g.current, 48))
-      : g.status === 'completed'
-        ? g.status
-        : `${g.status}${g.current && g.current !== 'waiting' ? ui.red(`: ${truncate(g.current, 80)}`) : ''}`
-  return `${icon} ${ui.bold(g.label)} ${g.model.padEnd(34)} ${parts.join(ui.dim(' · '))}  ${tail}`
+      ? p.fg('text')(truncate(g.current, inner))
+      : g.error
+        ? p.fg('error')(truncate(g.error, inner))
+        : g.status === 'completed'
+          ? p.dim('done')
+          : p.dim(g.current)
+  lines.push(fit(activity, inner))
+  void bar
+  return panel(lines, {
+    width,
+    title: `${g.label}  ${g.model}`,
+    titleStyle: (s) => p.bold(lane(s)),
+    border: lane,
+    badge: g.status === 'running' ? undefined : statusWord(p, g),
+  })
+}
+
+export const renderDashboard = (
+  p: Palette,
+  s: DashboardState,
+  width: number,
+  now = Date.now(),
+): string[] => {
+  const w = Math.max(40, width)
+  const out: string[] = []
+  const elapsed = formatDuration(now - s.startedAt)
+  const running = s.gauges.filter((g) => g.status === 'running').length
+  const detail = s.cancelling
+    ? 'cancelling: stopping agents and keeping partial work'
+    : `${s.gauges.length} attempts · ${running} running · ${elapsed}`
+  out.push(...header(p, s.version, { detail, hint: s.cancelling ? undefined : 'ctrl+c cancel' }))
+  out.push('')
+  out.push(fit(`${p.dim('task')}  ${p.fg('text')(s.task)}`, w))
+  out.push('')
+  // Cards side by side when they fit, stacked otherwise.
+  const cardW = s.gauges.length >= 2 && w >= 96 ? Math.floor((w - 2) / 2) : w
+  const cards = s.gauges.map((g, i) => renderCard(p, g, i, cardW, now, s.tick))
+  if (cardW === w) {
+    for (const c of cards) out.push(...c, '')
+  } else {
+    for (let i = 0; i < cards.length; i += 2) {
+      const a = cards[i] ?? []
+      const b = cards[i + 1] ?? []
+      const h = Math.max(a.length, b.length)
+      for (let r = 0; r < h; r++) out.push(`${fit(a[r] ?? '', cardW)}  ${b[r] ?? ''}`.trimEnd())
+      out.push('')
+    }
+  }
+  const notes = s.notes.slice(-4)
+  if (notes.length > 0) {
+    out.push(hr(w, p.fg('border')))
+    for (const n of notes) out.push(fit(n, w))
+  }
+  return out
+}
+
+const newGauge = (a: { label: string; model: string }): Gauge => ({
+  ...a,
+  status: 'pending',
+  turns: 0,
+  tools: 0,
+  denied: 0,
+  errors: 0,
+  input: 0,
+  output: 0,
+  cacheRead: 0,
+  current: 'waiting for a worktree',
+  perTurn: [],
+})
+
+export interface LiveOptions {
+  task: string
+  version: string
+  /** Called when the user presses Ctrl+C while the dashboard owns the terminal. */
+  onCancel: () => void
 }
 
 /**
- * Live per-attempt gauges on stderr, redrawn in place on a TTY. Off a TTY it prints a usage line
- * after every model turn instead, so logs still show token and cost progress.
+ * Live dashboard for compare runs. On a TTY it owns the terminal through Pi's TUI (regular mode,
+ * so the final frame stays in scrollback). Elsewhere it degrades to one usage line per model turn.
  */
 export const createLiveReporter = (
   ui: Ui,
   attempts: Array<{ label: string; model: string }>,
   base: Reporter,
+  options: LiveOptions,
 ): Reporter & { stop(): void } => {
-  const tty = Boolean(process.stderr.isTTY) && !ui.json
-  const gauges = new Map<string, Gauge>(
-    attempts.map((a) => [
-      a.label,
-      {
-        ...a,
-        status: 'pending',
-        turns: 0,
-        tools: 0,
-        denied: 0,
-        input: 0,
-        output: 0,
-        cacheRead: 0,
-        current: 'waiting',
-      },
-    ]),
-  )
-  let drawn = 0
-  let tick = 0
-  const render = (): void => {
-    if (!tty) return
-    const lines = [...gauges.values()].map((g) => gaugeLine(ui, g, Date.now(), tick))
-    const up = drawn > 0 ? `\u001b[${drawn}A` : ''
-    process.stderr.write(`${up}${lines.map((l) => `\u001b[2K${l}`).join('\n')}\n`)
-    drawn = lines.length
-    tick += 1
+  const tty = Boolean(process.stderr.isTTY && process.stdin.isTTY) && !ui.json
+  const p = ui.p
+  const state: DashboardState = {
+    task: options.task,
+    version: options.version,
+    gauges: attempts.map(newGauge),
+    startedAt: Date.now(),
+    tick: 0,
+    notes: [],
+    cancelling: false,
   }
-  const timer = tty ? setInterval(render, 200) : undefined
-  timer?.unref()
-  // Lines printed by the base reporter would corrupt the block; on a TTY we fold tool activity into the gauge.
-  const log = (line: string): void => {
-    if (!tty) {
-      ui.err(line)
-      return
+  const g = (who: { label: string }): Gauge | undefined =>
+    state.gauges.find((x) => x.label === who.label)
+
+  let tui: TuiMainScreen | undefined
+  let timer: NodeJS.Timeout | undefined
+  if (tty) {
+    const terminal = new ProcessTerminal()
+    tui = new TuiMainScreen(terminal, false)
+    const view = {
+      render: (width: number) =>
+        renderDashboard(p, state, Math.min(width, termWidth()), Date.now()),
+      invalidate: () => {},
     }
-    // Erase the gauge block, print the line above where it was, then redraw the block below it.
-    if (drawn > 0) process.stderr.write(`\u001b[${drawn}A\u001b[J`)
-    process.stderr.write(`${line}\n`)
-    drawn = 0
-    render()
+    tui.addChild(view)
+    tui.addInputListener((data) => {
+      if (matchesKey(data, 'ctrl+c')) {
+        if (state.cancelling) process.exit(130)
+        state.cancelling = true
+        options.onCancel()
+        tui?.requestRender()
+        return { consume: true }
+      }
+      return { consume: true }
+    })
+    tui.start()
+    timer = setInterval(() => {
+      state.tick += 1
+      tui?.requestRender()
+    }, 120)
+    timer.unref()
   }
-  const g = (who: { label: string }): Gauge | undefined => gauges.get(who.label)
+  const redraw = (): void => tui?.requestRender()
+  const note = (line: string): void => {
+    if (tui) {
+      state.notes.push(line)
+      redraw()
+    } else ui.err(line)
+  }
+
   return {
-    info: (m) => log(ui.dim(m)),
-    warn: (m) => log(ui.yellow(`warning: ${m}`)),
+    info: (m) => note(p.dim(m)),
+    warn: (m) => note(p.fg('warning')(`warning: ${m}`)),
     phase: (who, m) => {
       const x = g(who)
       if (x) x.current = m
-      if (!tty) base.phase(who, m)
+      if (tui) redraw()
+      else base.phase(who, m)
     },
     attempt: (who, status, error) => {
       const x = g(who)
@@ -114,9 +251,9 @@ export const createLiveReporter = (
       x.status = status
       if (status === 'running') x.startedAt ??= Date.now()
       else x.endedAt = Date.now()
-      if (error) x.current = error
-      if (!tty) ui.err(ui.dim(`[${who.label} ${who.model}] ${status}${error ? `: ${error}` : ''}`))
-      render()
+      if (error) x.error = error
+      if (!tui) ui.err(ui.dim(`[${who.label} ${who.model}] ${status}${error ? `: ${error}` : ''}`))
+      redraw()
     },
     event: (who, e: RuntimeEvent) => {
       const x = g(who)
@@ -124,28 +261,32 @@ export const createLiveReporter = (
       switch (e.type) {
         case 'tool-start':
           x.tools += 1
-          x.current = `▸ ${e.tool} ${e.summary}`
+          x.current = `${e.tool} ${e.summary}`
           if ((e.tool === 'write' || e.tool === 'edit') && !x.firstEditAt)
             x.firstEditAt = Date.now()
           break
         case 'tool-end':
-          x.current = e.isError ? `✗ ${e.tool} failed` : 'thinking'
+          if (e.isError) x.errors += 1
+          x.current = e.isError ? `${e.tool} failed` : 'thinking'
           break
         case 'tool-denied':
           x.denied += 1
-          x.current = `⊘ ${e.tool} blocked`
-          if (tty) log(`${ui.dim(`[${who.label}]`)} ${ui.red('⊘')} ${e.tool} blocked: ${e.reason}`)
+          x.current = `${e.tool} blocked: ${e.reason}`
+          note(
+            `${p.dim(`[${who.label}]`)} ${p.fg('error')('blocked')} ${e.tool} ${p.dim(e.reason)}`,
+          )
           break
         case 'usage':
           x.turns = Math.max(x.turns, e.turn)
           x.input += e.inputTokens
           x.output += e.outputTokens
           x.cacheRead += e.cacheReadTokens
+          x.perTurn.push(e.outputTokens)
           if (e.costUsd !== undefined) x.cost = (x.cost ?? 0) + e.costUsd
-          if (!tty) {
+          if (!tui) {
             ui.err(
               ui.dim(
-                `[${who.label} ${who.model}] turn ${e.turn} · ${formatTokens(x.input + x.output + x.cacheRead)} tok · ${x.cost !== undefined ? formatCost(x.cost) : 'cost n/a'} · ${formatDuration(Date.now() - (x.startedAt ?? Date.now()))}`,
+                `[${who.label} ${who.model}] turn ${e.turn} · ${compactTokens(x.input + x.output + x.cacheRead)} tok · ${x.cost !== undefined ? formatCost(x.cost) : 'cost n/a'} · ${formatDuration(Date.now() - (x.startedAt ?? Date.now()))}`,
               ),
             )
           }
@@ -154,14 +295,19 @@ export const createLiveReporter = (
           x.current = 'writing'
           break
         case 'warning':
-          log(ui.yellow(e.message))
+          note(p.fg('warning')(e.message))
           break
       }
-      if (!tty && e.type !== 'usage') base.event(who, e)
+      if (tui) redraw()
+      else if (e.type !== 'usage') base.event(who, e)
     },
     stop: () => {
       if (timer) clearInterval(timer)
-      if (tty) render()
+      if (tui) {
+        tui.renderNow(true)
+        tui.stop()
+        tui = undefined
+      }
     },
   }
 }

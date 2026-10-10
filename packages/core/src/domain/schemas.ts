@@ -245,6 +245,18 @@ export const ApplicationSchema = z.object({
 })
 export type Application = z.infer<typeof ApplicationSchema>
 
+/** A developer's prediction of which attempt they will prefer, placed before reviewing. */
+export const BetSchema = z.object({
+  id: z.string(),
+  schemaVersion: z.number().int(),
+  projectId: z.string(),
+  runId: z.string(),
+  /** Attempt label (A, B...) the developer picked. */
+  pick: z.string(),
+  createdAt: z.string(),
+})
+export type Bet = z.infer<typeof BetSchema>
+
 export const recordSchemas = {
   run: SidebetRunSchema,
   attempt: SidebetAttemptSchema,
@@ -257,6 +269,7 @@ export const recordSchemas = {
   evaluation: EvaluationSchema,
   review: HumanReviewSchema,
   application: ApplicationSchema,
+  bet: BetSchema,
 } as const
 
 export interface RecordMap {
@@ -271,5 +284,6 @@ export interface RecordMap {
   evaluation: Evaluation
   review: HumanReview
   application: Application
+  bet: Bet
 }
 export type RecordKind = keyof RecordMap

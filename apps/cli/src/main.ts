@@ -1,6 +1,7 @@
 import { SidebetError } from '@sidebet/core'
 import type { CliContext } from './app.js'
 import { HELP, VERSION } from './help.js'
+import { header } from './style/banner.js'
 import { createUi } from './ui.js'
 
 type Handler = (ctx: CliContext, args: string[]) => Promise<number>
@@ -19,6 +20,7 @@ const commands: Record<string, () => Promise<Handler>> = {
   doctor: async () => (await import('./commands/doctor.js')).doctorCommand,
   models: async () => (await import('./commands/models.js')).modelsCommand,
   clean: async () => (await import('./commands/clean.js')).cleanCommand,
+  bet: async () => (await import('./commands/bet.js')).betCommand,
 }
 
 /** Pull global flags out of argv wherever they appear. */
@@ -51,11 +53,16 @@ export const main = async (
   const ui = createUi({ json: g.json, verbose: g.verbose, color: !g.noColor, env })
   const [name, ...args] = g.rest
   if (!name || name === 'help' || name === '-h' || name === '--help') {
+    if (ui.color) {
+      for (const l of header(ui.p, VERSION, { hint: 'sidebet <command> --help' })) ui.out(l)
+      ui.out()
+    }
     ui.out(HELP)
-    return name ? 0 : 0
+    return 0
   }
   if (name === '--version' || name === '-V') {
-    ui.out(VERSION)
+    if (ui.color) for (const l of header(ui.p, VERSION)) ui.out(l)
+    else ui.out(VERSION)
     return 0
   }
   const load = commands[name]
@@ -85,6 +92,7 @@ export const main = async (
     env,
     ui,
     signal: controller.signal,
+    cancel: () => onSigint(),
     interactive:
       Boolean(process.stdin.isTTY && process.stdout.isTTY) && !g.json && env.CI === undefined,
   }

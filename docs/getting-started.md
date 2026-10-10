@@ -127,13 +127,14 @@ Clean, apart from `.sidebet/` if you have not committed it yet.
 sidebet review
 ```
 
-This opens an interactive menu for the latest comparison. Try these in order:
+This opens a menu for the latest comparison (arrow keys, enter, esc). Try these in order:
 
-1. `da` shows model A's diff; `db` shows B's. Read them the way you would read a colleague's pull request: does it do what was asked, is it the way you would do it, did it touch anything it should not have?
-2. `c` shows the difference *between* the two results, which is often the fastest way to see where the models disagreed.
-3. `s` then `A` or `B` to mark the one you prefer.
-4. `r` to record your review: whether you accept the solution, and a one-line reason. This takes ten seconds and is what makes `sidebet odds` useful later.
-5. `a` to apply your chosen result to your repository.
+1. "View A diff" and "View B diff" open a full-screen viewer (`j`/`k` or arrows scroll, `q` closes). Read them the way you would read a colleague's pull request: does it do what was asked, is it the way you would do it, did it touch anything it should not have?
+2. "Compare A and B" shows the difference *between* the two results, often the fastest way to see where the models disagreed.
+3. Optionally, before deciding, `sidebet bet A` in another terminal records your guess; over time `odds` tells you how good your instincts are.
+4. "Select preferred result", then A or B.
+5. "Record review": whether you accept the solution, and a one-line reason. This takes ten seconds and is what makes `sidebet odds` useful later.
+6. "Apply a result" to bring your chosen result into your repository.
 
 Before applying, Sidebet lists the files it will change, warns if you have local edits in any of them, refuses entirely if the change would conflict, and asks you to confirm. It changes only your working tree (nothing is committed), and it saves a backup of your files first. The confirmation message tells you the exact `git` command to undo it.
 

@@ -13,6 +13,7 @@ export type IdPrefix =
   | 'rev'
   | 'app'
   | 'mem'
+  | 'bet'
 
 export const newId = (prefix: IdPrefix): string => `${prefix}_${randomBytes(4).toString('hex')}`
 

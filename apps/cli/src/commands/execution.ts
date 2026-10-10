@@ -9,6 +9,7 @@ import {
   SidebetError,
 } from '@sidebet/core'
 import type { App, CliContext } from '../app.js'
+import { VERSION } from '../help.js'
 import { createLiveReporter } from '../live.js'
 import { printPlan, printRunSummary } from '../present.js'
 import { createReporter } from '../reporter.js'
@@ -108,6 +109,7 @@ export const runPlan = async (
             model: `${m.provider}/${m.id}`,
           })),
           basic,
+          { task: plan.task, version: VERSION, onCancel: ctx.cancel },
         )
       : undefined
   const reporter = live ?? basic

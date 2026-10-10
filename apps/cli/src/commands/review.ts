@@ -1,6 +1,5 @@
 import { mkdir } from 'node:fs/promises'
 import { dirname } from 'node:path'
-import { createInterface } from 'node:readline/promises'
 import {
   type AttemptDetail,
   applyAttempt,
@@ -20,17 +19,30 @@ import {
 } from '@sidebet/core'
 import { type App, type CliContext, openApp } from '../app.js'
 import { parse } from '../args.js'
+import { VERSION } from '../help.js'
 import { printMetrics } from '../metrics.js'
-import { attemptLine, statusColor } from '../present.js'
-import { plural, truncate } from '../ui.js'
+import { attemptLine, statusColor, testSummary } from '../present.js'
+import { header } from '../style/banner.js'
+import {
+  askLine,
+  confirmTui,
+  type MenuItem,
+  renderDiffLines,
+  selectMenu,
+  viewText,
+} from '../tui.js'
+import { formatDuration, plural, truncate } from '../ui.js'
 import { showText } from './pager.js'
 
 const printReview = (ctx: CliContext, detail: RunDetail): void => {
   const { ui } = ctx
   const { run } = detail
-  ui.out(ui.bold('Sidebet Review'))
+  for (const l of header(ui.p, VERSION, {
+    context: `review ${run.id}`,
+    detail: truncate(run.task, 90),
+  }))
+    ui.out(l)
   ui.out()
-  ui.out(`Task: ${run.task}`)
   ui.out(
     ui.dim(
       `${run.id} · ${run.kind} · ${statusColor(ui, run.status)} · policy ${run.policyVersion} · context ${run.contextSnapshotId}${run.contextMode === 'original' ? ' (replayed)' : ''}`,
@@ -78,6 +90,18 @@ const printReview = (ctx: CliContext, detail: RunDetail): void => {
   }
   ui.out()
   printMetrics(ui, detail)
+  const bet = detail.bets.at(-1)
+  if (bet) {
+    const picked = detail.attempts.find((a) => a.attempt.label === bet.pick)
+    const outcome = lastReview?.preferredAttemptId
+      ? detail.attempts.find((a) => a.attempt.id === lastReview.preferredAttemptId)?.attempt
+          .label === bet.pick
+        ? ui.p.fg('gold')('◉ matched your preference')
+        : ui.dim('◎ did not match your preference')
+      : ui.dim('(review to resolve)')
+    ui.out()
+    ui.out(`Your call: ${bet.pick}${picked ? ` ${ui.dim(picked.attempt.model)}` : ''}  ${outcome}`)
+  }
   if (lastReview) {
     ui.out()
     ui.out(
@@ -266,78 +290,120 @@ export const reviewCommand = async (ctx: CliContext, args: string[]): Promise<nu
 
 const interactiveLoop = async (ctx: CliContext, app: App, initial: RunDetail): Promise<number> => {
   const { ui } = ctx
+  const p = ui.p
   let detail = initial
-  let preferred: string | undefined = detail.reviews.at(-1)?.preferredAttemptId
-    ? detail.attempts.find((a) => a.attempt.id === detail.reviews.at(-1)?.preferredAttemptId)
-        ?.attempt.label
-    : undefined
-  const rl = createInterface({ input: process.stdin, output: process.stdout })
-  const ask = (q: string): Promise<string> => rl.question(q)
+  const labelOf = (id?: string): string | undefined =>
+    detail.attempts.find((a) => a.attempt.id === id)?.attempt.label
+  let preferred: string | undefined = labelOf(detail.reviews.at(-1)?.preferredAttemptId)
   const labels = detail.attempts.map((a) => a.attempt.label)
-  try {
-    for (;;) {
-      ui.out()
-      ui.out(ui.bold('Actions:'))
-      const menu: Array<[string, string]> = [
-        ...labels.map((l): [string, string] => [`d${l.toLowerCase()}`, `View ${l} diff`]),
-        ...(labels.length === 2
-          ? ([['c', 'Compare changes (A vs B)']] as Array<[string, string]>)
-          : []),
-        ['s', `Select preferred result${preferred ? ` (now ${preferred})` : ''}`],
-        ['r', 'Record review'],
-        ['a', 'Apply a result to this repository'],
-        ['w', 'Check out an attempt in a worktree'],
-        ['q', 'Exit'],
-      ]
-      for (const [k, d] of menu) ui.out(`  ${ui.cyan(k.padEnd(3))} ${d}`)
-      const choice = (await ask('> ')).trim().toLowerCase()
-      try {
-        if (choice === 'q' || choice === '') break
-        if (/^d[a-z]$/.test(choice))
-          await showText(ui, await attemptDiff(app, findAttempt(detail, choice.slice(1))), true)
-        else if (choice === 'c') {
-          const [a, b] = detail.attempts
-          if (a && b) await showText(ui, await diffBetween(app, a, b), true)
-        } else if (choice === 's') {
-          const l = (await ask(`Preferred attempt (${labels.join('/')}): `)).trim().toUpperCase()
-          findAttempt(detail, l)
-          preferred = l
-          ui.out(`Selected ${l}. Choose "r" to record your review.`)
-        } else if (choice === 'r') {
-          const accepted = /^y/i.test((await ask('Accept this solution? [y/N] ')).trim())
-          const reason = (await ask('Reason (optional): ')).trim()
-          const notes = (await ask('Notes (optional): ')).trim()
-          const review = recordReview(app.storage, detail, {
-            runId: detail.run.id,
-            preferred,
-            accepted,
-            reason: reason || undefined,
-            notes: notes || undefined,
-          })
-          ui.out(ui.green(`Recorded review ${review.id}.`))
-          detail = loadRunDetail(app.storage, detail.run.id)
-        } else if (choice === 'a') {
-          const l =
-            (
-              await ask(
-                `Apply which attempt? (${labels.join('/')}${preferred ? `, enter = ${preferred}` : ''}): `,
-              )
-            )
-              .trim()
-              .toUpperCase() || preferred
-          if (l) await applyFlow(ctx, app, detail, l, { yes: false, allowIncomplete: false, ask })
-        } else if (choice === 'w') {
-          const l = (await ask(`Check out which attempt? (${labels.join('/')}): `))
-            .trim()
-            .toUpperCase()
-          await checkout(app, detail, l, ctx)
-        } else ui.out('Unknown action.')
-      } catch (err) {
-        ui.out(ui.red(err instanceof Error ? err.message : String(err)))
+  const laneOf = (label: string): ((s: string) => string) => p.lane(labels.indexOf(label))
+  const ask = async (q: string): Promise<string> => (await askLine(p, q)) ?? ''
+
+  for (;;) {
+    const items: MenuItem[] = [
+      ...detail.attempts.map((a) => ({
+        value: `diff:${a.attempt.label}`,
+        label: `View ${a.attempt.label} diff`,
+        description: `${a.attempt.model} · ${plural(a.attempt.changedFiles.length, 'file')}`,
+      })),
+      ...(labels.length === 2
+        ? [
+            {
+              value: 'compare',
+              label: 'Compare A and B',
+              description: 'the difference between the two results',
+            },
+          ]
+        : []),
+      {
+        value: 'select',
+        label: 'Select preferred result',
+        description: preferred ? `currently ${preferred}` : 'not chosen yet',
+      },
+      { value: 'record', label: 'Record review', description: 'accepted or not, with a reason' },
+      {
+        value: 'apply',
+        label: 'Apply a result to this repository',
+        description: 'previews, confirms, keeps a backup',
+      },
+      { value: 'checkout', label: 'Check out an attempt in a worktree' },
+      { value: 'exit', label: 'Exit' },
+    ]
+    const choice = await selectMenu(p, 'Review', items)
+    if (!choice || choice === 'exit') break
+    try {
+      if (choice.startsWith('diff:')) {
+        const label = choice.slice(5)
+        const a = findAttempt(detail, label)
+        const patch = await attemptDiff(app, a)
+        if (!patch.trim()) ui.out(p.dim(`${label} made no changes.`))
+        else await viewText(p, `${label}  ${a.attempt.model}`, await renderDiffLines(p, patch))
+      } else if (choice === 'compare') {
+        const [a, b] = detail.attempts
+        if (a && b)
+          await viewText(p, 'A → B', await renderDiffLines(p, await diffBetween(app, a, b)))
+      } else if (choice === 'select') {
+        const pick = await selectMenu(
+          p,
+          'Preferred result',
+          detail.attempts.map((a) => ({
+            value: a.attempt.label,
+            label: `${a.attempt.label}  ${a.attempt.model}`,
+            description: `tests ${testSummary(a)} · ${formatDuration(a.attempt.durationMs)}`,
+          })),
+        )
+        if (pick) {
+          preferred = pick
+          ui.out(`${laneOf(pick)(pick)} selected. Record the review to save it.`)
+        }
+      } else if (choice === 'record') {
+        const accepted = await confirmTui(p, 'Accept this solution?')
+        const reason = (await askLine(p, 'Reason (optional)')) ?? ''
+        const notes = (await askLine(p, 'Notes (optional)')) ?? ''
+        const review = recordReview(app.storage, detail, {
+          runId: detail.run.id,
+          preferred,
+          accepted,
+          reason: reason || undefined,
+          notes: notes || undefined,
+        })
+        detail = loadRunDetail(app.storage, detail.run.id)
+        const bet = detail.bets.at(-1)
+        const called =
+          bet && preferred
+            ? bet.pick === preferred
+              ? 'matched your call'
+              : `your call was ${bet.pick}`
+            : undefined
+        ui.out(
+          `${p.fg('success')('Recorded')} ${p.dim(review.id)}${called ? p.dim(` · ${called}`) : ''}`,
+        )
+      } else if (choice === 'apply') {
+        const pick = await selectMenu(
+          p,
+          'Apply which result?',
+          detail.attempts.map((a) => ({
+            value: a.attempt.label,
+            label: `${a.attempt.label}  ${a.attempt.model}`,
+            description: a.attempt.label === preferred ? 'preferred' : undefined,
+          })),
+        )
+        if (pick)
+          await applyFlow(ctx, app, detail, pick, { yes: false, allowIncomplete: false, ask })
+      } else if (choice === 'checkout') {
+        const pick = await selectMenu(
+          p,
+          'Check out which attempt?',
+          detail.attempts.map((a) => ({
+            value: a.attempt.label,
+            label: `${a.attempt.label}  ${a.attempt.model}`,
+          })),
+        )
+        if (pick) await checkout(app, detail, pick, ctx)
       }
+    } catch (err) {
+      ui.out(p.fg('error')(err instanceof Error ? err.message : String(err)))
     }
-  } finally {
-    rl.close()
   }
   return 0
 }

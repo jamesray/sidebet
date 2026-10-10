@@ -14,6 +14,8 @@ export interface CliContext {
   env: NodeJS.ProcessEnv
   ui: Ui
   signal: AbortSignal
+  /** Request cancellation of the current command (what Ctrl+C does). */
+  cancel: () => void
   interactive: boolean
 }
 

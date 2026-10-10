@@ -28,11 +28,12 @@ export const statusColor = (ui: Ui, status: string): string => {
   return status
 }
 
-export const attemptLine = (ui: Ui, a: AttemptDetail): string[] => {
+export const attemptLine = (ui: Ui, a: AttemptDetail, index = 0): string[] => {
   const at = a.attempt
   const files = at.changedFiles.length
+  const lane = ui.p.lane(index)
   const parts = [
-    `${ui.bold(at.label)}  ${modelRef({ provider: at.provider, id: at.model })}`,
+    `${ui.bold(lane(at.label))}  ${lane(modelRef({ provider: at.provider, id: at.model }))}`,
     statusColor(ui, at.status),
     `${plural(files, 'file')} changed`,
     `tests: ${testSummary(a)}`,
@@ -52,11 +53,12 @@ export const printRunSummary = (
   const { run } = detail
   ui.out()
   ui.out(
-    `${ui.bold(run.kind === 'compare' ? 'Compare' : 'Run')} ${run.id}  ${statusColor(ui, run.status)}${run.readonly ? ui.dim('  read-only') : ''}`,
+    `${ui.bold(ui.accent(run.kind === 'compare' ? 'Compare' : 'Run'))} ${ui.dim(run.id)}  ${statusColor(ui, run.status)}${run.readonly ? ui.dim('  read-only') : ''}`,
   )
-  ui.out(`Task: ${truncate(run.task, 120)}`)
+  ui.out(`${ui.dim('task')}  ${truncate(run.task, 120)}`)
   ui.out()
-  for (const line of table(detail.attempts.map((a) => attemptLine(ui, a)))) ui.out(`  ${line}`)
+  for (const line of table(detail.attempts.map((a, i) => attemptLine(ui, a, i))))
+    ui.out(`  ${line}`)
   for (const a of detail.attempts) {
     if (a.attempt.error) ui.out(ui.red(`  ${a.attempt.label}: ${truncate(a.attempt.error, 200)}`))
     const denied = a.toolEvents.filter((e) => e.decision === 'denied')
@@ -71,7 +73,9 @@ export const printRunSummary = (
     for (const a of detail.attempts) {
       if (!a.attempt.summary) continue
       ui.out()
-      ui.out(ui.bold(`${a.attempt.label} (${a.attempt.model}) says:`))
+      ui.out(
+        ui.bold(ui.p.lane(detail.attempts.indexOf(a))(`${a.attempt.label}  ${a.attempt.model}`)),
+      )
       ui.out(
         a.attempt.summary
           .split('\n')
@@ -84,9 +88,11 @@ export const printRunSummary = (
   if (options.next !== false) {
     ui.out()
     if (run.kind === 'compare')
-      ui.out(`Next: ${ui.cyan(`sidebet review ${run.id}`)}   (your working tree was not modified)`)
+      ui.out(
+        `${ui.dim('next')}  ${ui.accent(`sidebet review ${run.id}`)}   ${ui.dim('your working tree was not modified')}`,
+      )
     else if (detail.attempts[0]?.attempt.changedFiles.length)
-      ui.out(`Next: ${ui.cyan(`sidebet runs diff ${run.id}`)}`)
+      ui.out(`${ui.dim('next')}  ${ui.accent(`sidebet runs diff ${run.id}`)}`)
   }
 }
 

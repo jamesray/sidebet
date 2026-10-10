@@ -44,12 +44,23 @@ export interface HeadToHead {
   bothFailed: number
 }
 
+export interface CallRecord {
+  /** Oldest first. */
+  outcomes: Array<'hit' | 'miss'>
+  hits: number
+  total: number
+  /** Current streak of hits (0 if the last call missed). */
+  streak: number
+}
+
 export interface OddsReport {
   generatedFromRuns: number
   compareRuns: number
   reviewedRuns: number
   models: ModelOdds[]
   headToHead: HeadToHead[]
+  /** How often the developer's pre-review bet matched their recorded preference. */
+  calls: CallRecord
   caveats: string[]
 }
 
@@ -70,6 +81,7 @@ export const computeOdds = (
   const h2h = new Map<string, HeadToHead>()
   let compareRuns = 0
   let reviewedRuns = 0
+  const callOutcomes: Array<'hit' | 'miss'> = []
   const get = (
     m: string,
   ): ModelOdds & { durations: number[]; costs: number[]; tokens: number[] } => {
@@ -109,6 +121,11 @@ export const computeOdds = (
     if (run.kind === 'compare') compareRuns += 1
     const review = [...detail.reviews].reverse().find((r) => r.preferredAttemptId !== undefined)
     if (review) reviewedRuns += 1
+    const bet = detail.bets.at(-1)
+    if (bet && review?.preferredAttemptId) {
+      const preferred = detail.attempts.find((a) => a.attempt.id === review.preferredAttemptId)
+      if (preferred) callOutcomes.push(preferred.attempt.label === bet.pick ? 'hit' : 'miss')
+    }
     for (const a of detail.attempts) {
       const s = get(key(a.attempt))
       const c = cat(s, run.category)
@@ -219,7 +236,16 @@ export const computeOdds = (
       'Cost is shown only where the runtime reported one; missing costs are not estimated.',
     )
   }
+  let streak = 0
+  for (let i = callOutcomes.length - 1; i >= 0 && callOutcomes[i] === 'hit'; i--) streak += 1
+  const calls: CallRecord = {
+    outcomes: callOutcomes,
+    hits: callOutcomes.filter((o) => o === 'hit').length,
+    total: callOutcomes.length,
+    streak,
+  }
   return {
+    calls,
     generatedFromRuns: runs.length,
     compareRuns,
     reviewedRuns,

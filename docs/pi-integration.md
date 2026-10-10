@@ -32,9 +32,11 @@ pi install ./extensions/pi        # or: pi -e ./extensions/pi/index.ts
 | `/sidebet [cmd ...]` | Runs a Sidebet command (default `doctor`), e.g. `/sidebet runs`, `/sidebet odds` |
 | `/sidebet-context [task]` | Shows the context Sidebet would add |
 | `/sidebet-memory add\|list\|search\|remove ...` | Manage memory without leaving Pi |
-| `/sidebet-compare [--models a,b] "<task>"` | Runs a compare in isolated worktrees, then points you to `sidebet review` |
+| `/sidebet-compare [--models a,b] "<task>"` | Runs a compare in isolated worktrees. With no arguments it asks for the task and lets you pick the two models from a list |
+| `/sidebet-review [run-id]` | Reviews the latest comparison inside Pi: diffs as highlighted messages, A→B comparison in an overlay, select, record, and a confirmed apply |
+| `/sidebet-odds` | Your model history as an overlay panel |
 
-It also adds Sidebet rules and relevant memory to plain Pi sessions via `before_agent_start` (disable with `SIDEBET_PI_CONTEXT=0`).
+It also adds Sidebet rules and relevant memory to plain Pi sessions via `before_agent_start` (disable with `SIDEBET_PI_CONTEXT=0`), and shows a status entry (`◉ sidebet · n rules · m memories`) so you can see what the session received. `/sidebet-memory` with no arguments opens an input for a new memory.
 
 **Not covered in plain Pi sessions:** policy enforcement and run recording. Those apply to sessions Sidebet starts.
 

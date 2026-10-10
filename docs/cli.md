@@ -34,12 +34,15 @@ Run ids look like `run_1a2b3c4d`; any unique prefix works.
 ## compare
 `sidebet compare "<task>" [--models a,b] [--concurrency n] [--timeout sec] [--keep-worktrees] [--readonly] [--dry-run] [--context file]`. Default models: Pi's default plus the first eligible model from another provider; set `models.compare` to choose.
 
-While running, a live gauge per attempt is redrawn on stderr (TTY): elapsed time, turns, tool calls (and blocked calls), tokens with in/out split, cost as reported so far, time of first edit, and the current tool. Off a TTY the gauge degrades to one usage line per model turn, so CI logs still show progress.
+While running, a live dashboard (one card per attempt, side by side when the terminal is 96 columns or wider) is drawn through Pi's TUI on a TTY: elapsed time, turns, tool calls (and blocked calls), tokens with in/out split, cost as reported so far, time of first edit, and the current tool. Off a TTY the gauge degrades to one usage line per model turn, so CI logs still show progress.
 
 Afterwards (and in `review` and `runs show`) a metrics table compares attempts column by column: status, total and agent time, time to first token, time to first edit, turns, tool calls by tool, tool errors/blocked, input/output/cache tokens, output speed, cost, files changed, lines +/-, tests and test time. `◂` marks the better value for that one metric; nothing is combined into a score, and cost is only ever what the runtime reported. Uncommitted changes are included via a snapshot commit (or stop the run if `compare.uncommitted` is `refuse`). Nothing is merged automatically.
 
+## bet
+`sidebet bet <A|B> [--run <id>]`. Records which result you expect to prefer, before reading the diffs, for the latest unreviewed compare run. When you later record a preference in `review`, the call resolves; `odds` shows how often your calls matched. It is a record of your own judgement, not a model metric, and it changes nothing about the run.
+
 ## review
-`sidebet review [run-id]` (default: latest compare run). On a terminal it opens an interactive menu: view each diff, compare changes, select preferred, record review, apply, check out an attempt. Non-interactive flags:
+`sidebet review [run-id]` (default: latest compare run). On a terminal it opens a menu built on Pi's TUI: view each diff in a full-screen viewer (`↑↓`/`j k` scroll, `space`/`pgdn`, `g`/`G`, `q` close), compare A and B, select preferred, record review, apply, check out an attempt. Diffs use Pi's renderer with intra-line highlights when Pi is installed. Non-interactive flags:
 
 `--diff A`, `--compare` (diff between attempt results), `--select A [--accept|--reject] [--reason ".."] [--notes ".."]`, `--apply A [--yes] [--allow-incomplete]`, `--checkout A`, `--json`.
 
@@ -65,4 +68,4 @@ Apply: previews the files (`M*` marks files you also edited), requires confirmat
 `sidebet clean` removes leftover Sidebet worktrees for this project. Results stay in `refs/sidebet/`.
 
 ## Environment
-`SIDEBET_HOME` data dir (default `~/.sidebet`), `NO_COLOR`, `PI_CODING_AGENT_DIR` (Pi's), `SIDEBET_RUNTIME=fake` + `SIDEBET_FAKE_SCRIPT=<json>` for an offline fake runtime (testing/demos only).
+`SIDEBET_HOME` data dir (default `~/.sidebet`), `NO_COLOR`, `SIDEBET_THEME=light|dark` (otherwise detected from `COLORFGBG`), `PI_CODING_AGENT_DIR` (Pi's), `SIDEBET_RUNTIME=fake` + `SIDEBET_FAKE_SCRIPT=<json>` for an offline fake runtime (testing/demos only).

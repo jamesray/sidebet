@@ -18,9 +18,11 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
+    "@earendil-works/pi-coding-agent": "1.1.0",
+    "@earendil-works/pi-tui": "1.1.0",
     "@sidebet/core": "workspace:*",
-    "@sidebet/storage-local": "workspace:*",
-    "@sidebet/runtime-pi": "workspace:*"
+    "@sidebet/runtime-pi": "workspace:*",
+    "@sidebet/storage-local": "workspace:*"
   },
   "devDependencies": {
     "@sidebet/config": "workspace:*"

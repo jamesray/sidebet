@@ -1,6 +1,6 @@
 export const VERSION = '0.1.0'
 
-export const HELP = `Sidebet ${VERSION} - same context, different models, better decisions.
+export const HELP = `Sidebet ${VERSION}
 
 Usage: sidebet <command> [options]
 
@@ -28,6 +28,7 @@ Do work
   runs [list|show <id>|diff <id> [A]]   Run history (--limit n, --status s)
   rerun <run-id>               --original-context (default) | --current-context | --models | --dry-run
   odds                         Your own model history (--category c, --by-category)
+  bet <A|B>                    Record which result you expect to prefer, before reviewing
 
 Context, memory, policy
   context [--task ".."]        What the agent would receive now

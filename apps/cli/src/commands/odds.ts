@@ -6,10 +6,18 @@ import {
 } from '@sidebet/core'
 import { type CliContext, openApp } from '../app.js'
 import { parse } from '../args.js'
-import { formatCost, formatDuration, formatTokens, table } from '../ui.js'
+import { VERSION } from '../help.js'
+import { chipStack, header } from '../style/banner.js'
+import { bar } from '../style/draw.js'
+import { formatCost, formatDuration, formatTokens, table, type Ui } from '../ui.js'
 
 const pct = (n: number, d: number): string =>
   d === 0 ? '-' : `${n}/${d} (${Math.round((n / d) * 100)}%)`
+
+const meter = (ui: Ui, n: number, d: number): string =>
+  d === 0
+    ? ui.dim('-')
+    : `${bar(n, d, 8, { on: ui.p.fg('accent'), off: ui.p.fg('border') })} ${pct(n, d)}`
 
 export const oddsCommand = async (ctx: CliContext, args: string[]): Promise<number> => {
   const { values } = parse(args, {
@@ -32,12 +40,11 @@ export const oddsCommand = async (ctx: CliContext, args: string[]): Promise<numb
       ui.out(JSON.stringify(report, null, 2))
       return 0
     }
-    ui.out(ui.bold('Sidebet Odds'))
-    ui.out(
-      ui.dim(
-        `${app.project.name}: ${report.generatedFromRuns} finished run(s), ${report.compareRuns} compare, ${report.reviewedRuns} with a recorded preference${cat?.data ? `, category ${cat.data}` : ''}`,
-      ),
-    )
+    for (const l of header(ui.p, VERSION, {
+      context: `odds · ${app.project.name}`,
+      detail: `${report.generatedFromRuns} finished run(s) · ${report.compareRuns} compare · ${report.reviewedRuns} with a recorded preference${cat?.data ? ` · ${cat.data}` : ''}`,
+    }))
+      ui.out(l)
     ui.out()
     if (report.models.length === 0) {
       for (const c of report.caveats) ui.out(c)
@@ -56,8 +63,8 @@ export const oddsCommand = async (ctx: CliContext, args: string[]): Promise<numb
     const rows = report.models.map((m) => [
       m.model,
       String(m.attempts),
-      pct(m.testsPassed, m.testsRun),
-      pct(m.preferred, m.appearances),
+      meter(ui, m.testsPassed, m.testsRun),
+      meter(ui, m.preferred, m.appearances),
       pct(m.reviewsAccepted, m.reviewsPicked),
       formatDuration(m.medianDurationMs),
       formatTokens(m.medianTotalTokens),
@@ -98,6 +105,17 @@ export const oddsCommand = async (ctx: CliContext, args: string[]): Promise<numb
         }
         for (const l of table(report.models.map(crow).filter((r) => r.length))) ui.out(`  ${l}`)
       }
+    }
+    if (report.calls.total > 0) {
+      ui.out()
+      ui.out(
+        `${ui.bold('Your calls')}  ${chipStack(ui.p, report.calls.outcomes)}  ${report.calls.hits}/${report.calls.total} matched your later preference${report.calls.streak >= 2 ? ui.dim(` · ${report.calls.streak} in a row`) : ''}`,
+      )
+      ui.out(
+        ui.dim(
+          '  A call is a `sidebet bet` placed before reviewing; it measures your prediction, not the models.',
+        ),
+      )
     }
     ui.out()
     for (const c of report.caveats) ui.out(ui.dim(`• ${c}`))

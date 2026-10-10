@@ -144,7 +144,7 @@ describe('sidebet CLI (built, real git repo, offline runtime)', () => {
     expect(sh(repo, 'git', ['status', '--porcelain'])).toBe('')
 
     const review = sb(['review', detail.run.id])
-    expect(review.out).toContain('Sidebet Review')
+    expect(review.out).toContain(`review ${detail.run.id}`)
     expect(review.out).toContain('A: fakeai/alpha')
     expect(review.out).toContain('B: other/beta')
     expect(review.out).toContain('Time to first edit')
@@ -192,14 +192,27 @@ describe('sidebet CLI (built, real git repo, offline runtime)', () => {
 
   it('odds reports counts, keeps tests and preference separate, and never invents cost', () => {
     const r = sb(['odds'])
-    expect(r.out).toContain('Sidebet Odds')
+    expect(r.out).toContain('odds · search-service')
     expect(r.out).toContain('fakeai/alpha')
     expect(r.out).toContain('Tests passed (objective)')
     expect(r.out).toContain('Preferred (human)')
     expect(r.out).toContain('Head-to-head')
+    // a bet placed before the review is resolved against the recorded preference
+    const runs = json<Array<{ run: { id: string; kind: string }; reviews: unknown[] }>>(['runs'])
+    const unreviewed = runs.find((x) => x.run.kind === 'compare' && x.reviews.length === 0)
+    expect(unreviewed).toBeDefined()
+    const id = unreviewed?.run.id ?? ''
+    expect(sb(['bet', 'B', '--run', id]).code).toBe(0)
+    expect(sb(['bet', 'A', '--run', id]).code).toBe(0) // the latest bet counts
+    sb(['review', id, '--select', 'A', '--accept'])
+    expect(sb(['review', id]).out).toContain('matched your preference')
+    expect(sb(['bet', 'B', '--run', id]).code).toBe(1) // too late once reviewed
+    expect(sb(['odds']).out).toContain('Your calls')
     const data = json<{
+      calls: { hits: number; total: number }
       models: Array<{ model: string; medianCostUsd?: number; costReported: number }>
     }>(['odds'])
+    expect(data.calls).toMatchObject({ hits: 1, total: 1 })
     const beta = data.models.find((m) => m.model === 'other/beta')
     expect(beta?.medianCostUsd).toBeUndefined()
   })

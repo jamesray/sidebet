@@ -27,7 +27,7 @@ const fakePi = (
 }
 
 describe('Pi extension', () => {
-  it('is discovered by the real Pi resource loader and registers the four commands', async () => {
+  it('is discovered by the real Pi resource loader and registers its commands', async () => {
     const agentDir = await mkdtemp(join(tmpdir(), 'pi-agent-'))
     const cwd = await mkdtemp(join(tmpdir(), 'pi-cwd-'))
     const path = fileURLToPath(new URL('../index.ts', import.meta.url))
@@ -51,8 +51,11 @@ describe('Pi extension', () => {
       'sidebet-compare',
       'sidebet-context',
       'sidebet-memory',
+      'sidebet-odds',
+      'sidebet-review',
     ])
     expect(ext?.handlers.has('before_agent_start')).toBe(true)
+    expect(ext?.handlers.has('session_start')).toBe(true)
   })
 
   it('forwards commands to the sidebet CLI and shows the output', async () => {
