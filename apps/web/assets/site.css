@@ -527,14 +527,14 @@ p code {
     radial-gradient(circle at 50% 50%, oklch(0.86 0.15 90 / 0.5), transparent 55%),
     radial-gradient(circle at 50% 55%, oklch(0.62 0.2 28 / 0.35), transparent 65%);
   filter: blur(34px);
-  opacity: 0.75;
+  opacity: 0.6;
   transform: translate(var(--gx), var(--gy));
   transition: opacity 0.6s ease;
   animation: chip-glow 7s ease-in-out infinite;
 }
 
 .chip-stage:hover .chip-glow {
-  opacity: 1;
+  opacity: 0.8;
 }
 
 .chip-float {
@@ -576,24 +576,24 @@ p code {
 .chip-shine {
   background: radial-gradient(
     circle at var(--sx) var(--sy),
-    rgba(255, 250, 232, 0.66) 0%,
-    rgba(255, 248, 225, 0.3) 13%,
-    rgba(255, 255, 255, 0.08) 28%,
-    rgba(255, 255, 255, 0) 42%
+    rgba(255, 250, 232, 0.38) 0%,
+    rgba(255, 248, 225, 0.16) 12%,
+    rgba(255, 255, 255, 0.04) 26%,
+    rgba(255, 255, 255, 0) 40%
   );
   mix-blend-mode: screen;
-  opacity: 0.95;
+  opacity: 0.9;
 }
 
 .chip-shade {
   background: radial-gradient(
     circle at calc(100% - var(--sx)) calc(100% - var(--sy)),
-    rgba(70, 20, 25, 0.55) 0%,
-    rgba(70, 20, 25, 0.25) 30%,
+    rgba(70, 20, 25, 0.32) 0%,
+    rgba(70, 20, 25, 0.14) 30%,
     rgba(70, 20, 25, 0) 60%
   );
   mix-blend-mode: multiply;
-  opacity: 0.9;
+  opacity: 0.85;
 }
 
 /* A slow diagonal sweep so the chip glints even when the cursor is still. */
@@ -601,16 +601,16 @@ p code {
   background: linear-gradient(
     115deg,
     rgba(255, 255, 255, 0) 38%,
-    rgba(255, 255, 255, 0.34) 47%,
-    rgba(255, 255, 255, 0.55) 50%,
-    rgba(255, 255, 255, 0.2) 54%,
+    rgba(255, 255, 255, 0.16) 47%,
+    rgba(255, 255, 255, 0.28) 50%,
+    rgba(255, 255, 255, 0.1) 54%,
     rgba(255, 255, 255, 0) 64%
   );
   background-size: 260% 100%;
   background-position: 120% 0;
   mix-blend-mode: screen;
-  opacity: 0.8;
-  animation: chip-sheen 6.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  opacity: 0.6;
+  animation: chip-sheen 9s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
 .chip-shadow {
@@ -660,10 +660,10 @@ p code {
 
 @keyframes chip-sheen {
   0%,
-  55% {
+  65% {
     background-position: 120% 0;
   }
-  85%,
+  90%,
   100% {
     background-position: -40% 0;
   }
@@ -678,7 +678,7 @@ p code {
   }
   .chip-sheen {
     background-position: 30% 0;
-    opacity: 0.5;
+    opacity: 0.35;
   }
 }
 
