@@ -88,10 +88,9 @@ export const createLiveReporter = (
       ui.err(line)
       return
     }
-    process.stderr.write(
-      `${drawn > 0 ? `\u001b[${drawn}A` : ''}\u001b[2K${line}\n${'\u001b[2K\n'.repeat(drawn)}`,
-    )
-    if (drawn > 0) process.stderr.write(`\u001b[${drawn}A`)
+    // Erase the gauge block, print the line above where it was, then redraw the block below it.
+    if (drawn > 0) process.stderr.write(`\u001b[${drawn}A\u001b[J`)
+    process.stderr.write(`${line}\n`)
     drawn = 0
     render()
   }

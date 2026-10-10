@@ -105,3 +105,28 @@ describe('policy', () => {
     ).toBe(false)
   })
 })
+
+describe('snapshotTree', () => {
+  it('skips ignored directories such as node_modules and drops linked paths without failing', async () => {
+    const { mkdtemp, mkdir, writeFile } = await import('node:fs/promises')
+    const { tmpdir } = await import('node:os')
+    const { join } = await import('node:path')
+    const { execFileSync } = await import('node:child_process')
+    const { snapshotTree, git } = await import('../src/index.js')
+    const repo = await mkdtemp(join(tmpdir(), 'snap-'))
+    const run = (args: string[]): string =>
+      execFileSync('git', args, { cwd: repo, encoding: 'utf8' })
+    run(['init', '-q', '-b', 'main'])
+    await writeFile(join(repo, '.gitignore'), 'node_modules\n')
+    await writeFile(join(repo, 'a.txt'), 'a')
+    await mkdir(join(repo, 'node_modules/dep'), { recursive: true })
+    await writeFile(join(repo, 'node_modules/dep/index.js'), 'x')
+    await mkdir(join(repo, 'vendor'))
+    await writeFile(join(repo, 'vendor/big.bin'), 'y') // not ignored, but linked
+    const tree = await snapshotTree(repo, ['node_modules', 'vendor'])
+    const files = (await git(repo, ['ls-tree', '-r', '--name-only', tree])).trim().split('\n')
+    expect(files).toEqual(['.gitignore', 'a.txt'])
+    // and the user's own index was never touched
+    expect(run(['diff', '--cached', '--name-only']).trim()).toBe('')
+  })
+})

@@ -78,8 +78,6 @@ export const statusLines = async (cwd: string): Promise<string[]> => {
   return out.split('\n').filter(Boolean)
 }
 
-const excludeSpecs = (exclude: string[]): string[] => exclude.map((p) => `:(exclude,glob)${p}`)
-
 /**
  * Write a tree object for the current working tree (tracked + untracked, honouring .gitignore)
  * using a private temporary index, so the user's index and files are never touched.
@@ -90,7 +88,13 @@ export const snapshotTree = async (cwd: string, exclude: string[] = []): Promise
   try {
     const head = await headCommit(cwd)
     if (head) await git(cwd, ['read-tree', head], { env })
-    await git(cwd, ['add', '-A', '--', '.', ...excludeSpecs(exclude)], { env })
+    // Ignored files are skipped by `add` on its own. An exclude pathspec is not used because Git
+    // rejects pathspecs that name an ignored directory (e.g. node_modules). Linked paths are
+    // dropped from the temporary index afterwards instead.
+    await git(cwd, ['add', '-A', '--', '.'], { env })
+    if (exclude.length > 0) {
+      await git(cwd, ['rm', '-r', '-q', '--cached', '--ignore-unmatch', '--', ...exclude], { env })
+    }
     return (await git(cwd, ['write-tree'], { env })).trim()
   } finally {
     await rm(dir, { recursive: true, force: true })
