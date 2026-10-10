@@ -475,6 +475,213 @@ p code {
   margin-top: clamp(40px, 6vw, 72px);
 }
 
+/* ---------- Hero chip ---------- */
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 40px 48px;
+  align-items: center;
+}
+
+.hero-chip {
+  --chip: clamp(180px, 46vw, 240px);
+  display: flex;
+  justify-content: center;
+  padding: 16px 0 8px;
+}
+
+@media (min-width: 980px) {
+  .hero-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 420px);
+  }
+  .hero-chip {
+    --chip: clamp(300px, 29vw, 400px);
+    padding: 0;
+    justify-content: flex-end;
+  }
+  .hero h1 {
+    font-size: clamp(2.5rem, 5vw, 4.5rem);
+  }
+}
+
+.chip-stage {
+  position: relative;
+  width: var(--chip);
+  height: var(--chip);
+  perspective: 1100px;
+  --rx: 0deg;
+  --ry: 0deg;
+  --sx: 32%;
+  --sy: 26%;
+  --gx: 0px;
+  --gy: 0px;
+  --shx: 0px;
+}
+
+.chip-glow {
+  position: absolute;
+  inset: -22%;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 50%, oklch(0.86 0.15 90 / 0.5), transparent 55%),
+    radial-gradient(circle at 50% 55%, oklch(0.62 0.2 28 / 0.35), transparent 65%);
+  filter: blur(34px);
+  opacity: 0.75;
+  transform: translate(var(--gx), var(--gy));
+  transition: opacity 0.6s ease;
+  animation: chip-glow 7s ease-in-out infinite;
+}
+
+.chip-stage:hover .chip-glow {
+  opacity: 1;
+}
+
+.chip-float {
+  position: absolute;
+  inset: 0;
+  animation: chip-float 7s ease-in-out infinite;
+}
+
+.chip-3d {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform: rotateX(var(--ry)) rotateY(var(--rx));
+  will-change: transform;
+}
+
+.chip-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 18px 30px rgba(0, 0, 0, 0.55)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+.chip-shine,
+.chip-shade,
+.chip-sheen {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  -webkit-mask-image: url("chip-hero.svg");
+  mask-image: url("chip-hero.svg");
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+/* Specular highlight that follows the cursor; a multiply layer shades the far side. */
+.chip-shine {
+  background: radial-gradient(
+    circle at var(--sx) var(--sy),
+    rgba(255, 250, 232, 0.66) 0%,
+    rgba(255, 248, 225, 0.3) 13%,
+    rgba(255, 255, 255, 0.08) 28%,
+    rgba(255, 255, 255, 0) 42%
+  );
+  mix-blend-mode: screen;
+  opacity: 0.95;
+}
+
+.chip-shade {
+  background: radial-gradient(
+    circle at calc(100% - var(--sx)) calc(100% - var(--sy)),
+    rgba(70, 20, 25, 0.55) 0%,
+    rgba(70, 20, 25, 0.25) 30%,
+    rgba(70, 20, 25, 0) 60%
+  );
+  mix-blend-mode: multiply;
+  opacity: 0.9;
+}
+
+/* A slow diagonal sweep so the chip glints even when the cursor is still. */
+.chip-sheen {
+  background: linear-gradient(
+    115deg,
+    rgba(255, 255, 255, 0) 38%,
+    rgba(255, 255, 255, 0.34) 47%,
+    rgba(255, 255, 255, 0.55) 50%,
+    rgba(255, 255, 255, 0.2) 54%,
+    rgba(255, 255, 255, 0) 64%
+  );
+  background-size: 260% 100%;
+  background-position: 120% 0;
+  mix-blend-mode: screen;
+  opacity: 0.8;
+  animation: chip-sheen 6.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.chip-shadow {
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  bottom: -11%;
+  height: 12%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0) 70%);
+  filter: blur(6px);
+  transform: translateX(var(--shx));
+  animation: chip-shadow 7s ease-in-out infinite;
+}
+
+@keyframes chip-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1.2deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(1.2deg);
+  }
+}
+
+@keyframes chip-shadow {
+  0%,
+  100% {
+    opacity: 0.9;
+    scale: 1;
+  }
+  50% {
+    opacity: 0.6;
+    scale: 0.92 1;
+  }
+}
+
+@keyframes chip-glow {
+  0%,
+  100% {
+    scale: 1;
+  }
+  50% {
+    scale: 1.06;
+  }
+}
+
+@keyframes chip-sheen {
+  0%,
+  55% {
+    background-position: 120% 0;
+  }
+  85%,
+  100% {
+    background-position: -40% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chip-float,
+  .chip-shadow,
+  .chip-glow,
+  .chip-sheen {
+    animation: none;
+  }
+  .chip-sheen {
+    background-position: 30% 0;
+    opacity: 0.5;
+  }
+}
+
 .hero-caption {
   margin-top: 12px;
   font-size: 0.82rem;
