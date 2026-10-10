@@ -484,11 +484,9 @@ p code {
   align-items: center;
 }
 
+/* The chip is a desktop flourish: below the two-column breakpoint it is not rendered at all. */
 .hero-chip {
-  --chip: clamp(180px, 46vw, 240px);
-  display: flex;
-  justify-content: center;
-  padding: 16px 0 8px;
+  display: none;
 }
 
 @media (min-width: 980px) {
@@ -497,7 +495,7 @@ p code {
   }
   .hero-chip {
     --chip: clamp(300px, 29vw, 400px);
-    padding: 0;
+    display: flex;
     justify-content: flex-end;
   }
   .hero h1 {
