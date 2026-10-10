@@ -1,8 +1,4 @@
-<p align="center">
-  <img src="docs/assets/chip-red.svg" width="96" alt="The Sidebet chip">
-</p>
-
-# Sidebet
+# Sidebet <img src="docs/assets/chip-red.svg" width="36" alt="The Sidebet chip">
 
 **Same context. Different models. Better decisions.**
 
