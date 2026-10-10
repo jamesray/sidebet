@@ -1,0 +1,889 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sidebet · Same context. Different models. Better decisions.</title>
+    <meta
+      name="description"
+      content="Sidebet is an open-source developer harness built on Pi. It keeps your rules, memory, and tooling consistent across AI coding sessions while making it easy to run different models against the same task, compare their results, and learn which models work best for your projects."
+    />
+    <meta name="theme-color" content="#0f0e13" />
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+    <link rel="canonical" href="https://sidebet.pages.dev/" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Sidebet" />
+    <meta property="og:title" content="Sidebet · Same context. Different models. Better decisions." />
+    <meta
+      property="og:description"
+      content="An open-source developer harness built on Pi. Keep your rules and memory consistent across AI coding sessions, run the same task on different models side by side, and learn which model works for your projects."
+    />
+    <meta property="og:url" content="https://sidebet.pages.dev/" />
+    <meta property="og:image" content="https://sidebet.pages.dev/assets/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Sidebet · Same context. Different models. Better decisions." />
+    <meta
+      name="twitter:description"
+      content="An open-source developer harness built on Pi. Compare models on the same task, in isolated Git worktrees, with real diffs, tests and costs."
+    />
+    <meta name="twitter:image" content="https://sidebet.pages.dev/assets/og.png" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap"
+    />
+    <link rel="stylesheet" href="assets/site.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Sidebet",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "macOS, Linux",
+        "license": "https://www.apache.org/licenses/LICENSE-2.0",
+        "codeRepository": "https://github.com/jamesray/sidebet",
+        "description": "An open-source developer harness built on Pi. It keeps your rules, memory, and tooling consistent across AI coding sessions while making it easy to run different models against the same task, compare their results, and learn which models work best for your projects.",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+      }
+    </script>
+  </head>
+  <body>
+    <div class="backdrop" aria-hidden="true"></div>
+
+    <header class="nav">
+      <div class="wrap">
+        <a class="brand" href="#top" aria-label="Sidebet home">
+          <img class="chip" src="assets/favicon.svg" alt="" width="22" height="22" />
+          sidebet <span class="ver">v0.1</span>
+        </a>
+        <nav aria-label="Sections">
+          <ul class="nav-links">
+            <li><a href="#why">Why</a></li>
+            <li><a href="#how">How it works</a></li>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#trust">Trust</a></li>
+            <li><a href="#roadmap">Roadmap</a></li>
+          </ul>
+        </nav>
+        <div class="nav-cta">
+          <a class="btn btn-ghost btn-sm" href="https://github.com/jamesray/sidebet" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
+              <path
+                d="M12 .5A11.5 11.5 0 0 0 .5 12.3c0 5.2 3.3 9.6 7.9 11.2.6.1.8-.3.8-.6v-2.2c-3.2.7-3.9-1.4-3.9-1.4-.5-1.4-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.7 1.3 3.4 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11 11 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.7 5.6-5.3 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6a11.6 11.6 0 0 0 7.9-11.2A11.5 11.5 0 0 0 12 .5Z"
+              />
+            </svg>
+            <span class="label">GitHub</span>
+          </a>
+          <a class="btn btn-primary btn-sm" href="#start">Get started</a>
+        </div>
+      </div>
+    </header>
+
+    <main id="top">
+      <!-- ============ HERO ============ -->
+      <section class="hero">
+        <div class="wrap">
+          <p class="eyebrow">
+            <span class="tag">Open source</span>
+            <span>Apache-2.0</span>
+            <span class="dot"></span>
+            <span>Local-first</span>
+            <span class="dot"></span>
+            <span>Built on Pi</span>
+          </p>
+          <h1>
+            <span class="line">Same context.</span>
+            <span class="line l2">Different models.</span>
+            <span class="line">Better decisions.</span>
+          </h1>
+          <p class="lede">
+            Sidebet is an open-source harness around your AI coding agent. It keeps your rules and
+            memory consistent across sessions, runs the same task on different models side by side
+            in isolated Git worktrees, and shows you the
+            <strong>real diffs, test results and token costs</strong> before you keep one. Over
+            time, your own history becomes evidence about which model works for your projects.
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#start">Get started</a>
+            <a class="btn btn-ghost" href="https://github.com/jamesray/sidebet" rel="noopener">
+              View on GitHub
+            </a>
+            <div class="install">
+              <span class="prompt" aria-hidden="true">$</span>
+              <code id="hero-cmd">sidebet compare "Refactor the search handler"</code>
+              <button class="copy" type="button" data-copy="#hero-cmd" aria-label="Copy command">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <rect x="9" y="9" width="12" height="12" rx="2" />
+                  <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="hero-visual">
+            <div class="term" id="hero-term" aria-label="Animated example of sidebet compare running two models">
+              <div class="term-bar">
+                <div class="dots" aria-hidden="true"><i></i><i></i><i></i></div>
+                <span class="title">~/credits-api</span>
+                <span class="cmd">sidebet compare</span>
+              </div>
+              <div class="term-body">
+                <div class="sb-head">
+                  <pre class="chipart" aria-hidden="true"><i>▗</i>▟<b>▀</b>▙<i>▖</i>
+<i>▝</i>▜<b>▄</b>▛<i>▘</i></pre>
+                  <div>
+                    <div class="l1"><span class="t-accent t-bold">sidebet</span> <span class="t-dim">v0.1.0</span>  <span class="t-muted">credits-api · main</span></div>
+                    <div class="l2"><span class="t-muted" id="hd-detail">2 attempts · 2 running · 0s</span>  <span class="t-dim" id="hd-hint">ctrl+c cancel</span></div>
+                  </div>
+                </div>
+                <div><span class="t-dim">task</span>  Make search case-insensitive and add a test for it</div>
+
+                <div class="cards">
+                  <div class="card" data-lane="a" data-card="a">
+                    <span class="card-title">A  anthropic/claude-sonnet-5-5</span>
+                    <span class="badge" data-f="badge"></span>
+                    <div class="status" data-f="status" data-state="running">
+                      <span class="glyph" data-f="glyph">⠋</span> <span class="word" data-f="word">running</span><span class="t-dim"> · </span><span data-f="elapsed">0s</span><span class="t-dim" data-f="firstedit"></span>
+                    </div>
+                    <div class="row"><span class="k">tokens</span><span><span data-f="tokens">0</span>  <span class="t-dim" data-f="io">↑0 ↓0</span></span></div>
+                    <div class="row"><span class="k">turns</span><span><span data-f="turns">0</span>  <span class="spark" data-f="spark"></span></span></div>
+                    <div class="row"><span class="k">tools</span><span><span data-f="tools">0</span>  <span class="t-err" data-f="blocked"></span></span></div>
+                    <div class="row"><span class="k">cost</span><span data-f="cost" class="t-dim">cost n/a</span></div>
+                    <div class="activity" data-f="activity">creating worktree</div>
+                  </div>
+                  <div class="card" data-lane="b" data-card="b">
+                    <span class="card-title">B  openai/gpt-5.5</span>
+                    <span class="badge" data-f="badge"></span>
+                    <div class="status" data-f="status" data-state="running">
+                      <span class="glyph" data-f="glyph">⠋</span> <span class="word" data-f="word">running</span><span class="t-dim"> · </span><span data-f="elapsed">0s</span><span class="t-dim" data-f="firstedit"></span>
+                    </div>
+                    <div class="row"><span class="k">tokens</span><span><span data-f="tokens">0</span>  <span class="t-dim" data-f="io">↑0 ↓0</span></span></div>
+                    <div class="row"><span class="k">turns</span><span><span data-f="turns">0</span>  <span class="spark" data-f="spark"></span></span></div>
+                    <div class="row"><span class="k">tools</span><span><span data-f="tools">0</span>  <span class="t-err" data-f="blocked"></span></span></div>
+                    <div class="row"><span class="k">cost</span><span data-f="cost" class="t-dim">cost n/a</span></div>
+                    <div class="activity" data-f="activity">creating worktree</div>
+                  </div>
+                </div>
+
+                <div class="summary" id="hero-summary">
+                  <div class="ln"><span class="t-accent t-bold">Compare</span> <span class="t-dim">run_7f3a9c21</span>  <span class="t-ok">completed</span></div>
+                  <div class="ln">&nbsp;</div>
+                  <div class="ln">  <span class="t-a t-bold">A</span>  <span class="t-a">anthropic/claude-sonnet-5-5</span>  <span class="t-ok">completed</span>  2 files changed  tests: <span class="t-ok">passed (14 passed)</span>  2m 58s  6 turns, 14 tools  48.2k tokens  $0.21</div>
+                  <div class="ln">  <span class="t-b t-bold">B</span>  <span class="t-b">openai/gpt-5.5</span>               <span class="t-ok">completed</span>  3 files changed  tests: <span class="t-ok">passed (14 passed)</span>  3m 31s  9 turns, 21 tools  61.7k tokens  cost n/a</div>
+                  <div class="ln">  <span class="t-warn">B: 1 tool call blocked by policy</span></div>
+                  <div class="ln">&nbsp;</div>
+                  <div class="ln"><span class="t-dim">next</span>  <span class="t-accent">sidebet review run_7f3a9c21</span>   <span class="t-dim">your working tree was not modified</span></div>
+                </div>
+              </div>
+            </div>
+            <p class="hero-caption">
+              Illustrative output. The numbers come from a demo run, not a benchmark, and the models
+              are examples.
+            </p>
+          </div>
+
+          <div class="facts reveal">
+            <div class="fact">
+              <b>Local-first</b>
+              <span>SQLite on disk. No account, no telemetry, no cloud.</span>
+            </div>
+            <div class="fact">
+              <b>Apache-2.0</b>
+              <span>Open source, with a patent grant. Fork it, ship it.</span>
+            </div>
+            <div class="fact">
+              <b>Built on Pi</b>
+              <span>Uses Pi's public SDK and the logins you already have.</span>
+            </div>
+            <div class="fact">
+              <b>Your tree, untouched</b>
+              <span>Comparisons run in Git worktrees from a snapshot.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ WHY ============ -->
+      <section class="section" id="why">
+        <div class="wrap">
+          <div class="section-head reveal">
+            <p class="kicker">The problem</p>
+            <h2>One agent. One answer. No way to know if it was the best one.</h2>
+            <p>
+              If you use an AI coding agent every day, with Claude Code, Codex, Cursor, Pi or
+              anything else, you have probably felt all three of these.
+            </p>
+          </div>
+          <div class="grid-3">
+            <article class="pcard reveal">
+              <span class="num">01</span>
+              <h3>You re-explain your project every session.</h3>
+              <p class="pain">
+                Conventions, slow test suites, files that must not change: they live in your head and
+                in whichever chat you had open. Every new session starts from zero.
+              </p>
+              <p class="fix">
+                Rules and memory are injected into every session. You can see exactly what the model
+                received, and why each item was included or left out.
+              </p>
+            </article>
+            <article class="pcard reveal">
+              <span class="num">02</span>
+              <h3>You pick a model on vibes.</h3>
+              <p class="pain">
+                Trying another model means redoing the task by hand and juggling branches. So you
+                don't, and you never learn what you missed.
+              </p>
+              <p class="fix">
+                The same task runs on two or more models at once, each in its own Git worktree. Real
+                diffs, real tests, real token counts, side by side.
+              </p>
+            </article>
+            <article class="pcard reveal">
+              <span class="num">03</span>
+              <h3>Nobody keeps score.</h3>
+              <p class="pain">
+                Which model passes your tests more often? Which one do you actually prefer once you
+                read the diff? Today that is a feeling.
+              </p>
+              <p class="fix">
+                Every run is recorded. <code>sidebet odds</code> shows pass rates, your preferences
+                and medians per model, with sample sizes, never blended into a score.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ WHAT IT IS ============ -->
+      <section class="section" id="what">
+        <div class="wrap">
+          <div class="section-head reveal">
+            <p class="kicker">What it is</p>
+            <h2>Not another coding agent.</h2>
+            <p>
+              <strong>Pi runs the agent. Sidebet owns everything around it:</strong> context, memory,
+              policy, isolation, review and history. Pi is never forked or patched; Sidebet uses its
+              public SDK and the credentials it already holds.
+            </p>
+          </div>
+          <div class="stack-wrap">
+            <div class="stack reveal" aria-label="How Sidebet sits between your repository, Pi and your model providers">
+              <div class="layer">
+                <span class="who">Your repository</span>
+                <span class="what">AGENTS.md · rules · tests · Git history</span>
+              </div>
+              <div class="arrow" aria-hidden="true">▼</div>
+              <div class="layer sidebet">
+                <span class="who">Sidebet</span>
+                <span class="what">the harness: a CLI and a thin Pi extension</span>
+                <div class="pills">
+                  <span>context</span><span>memory</span><span>policy</span><span>isolation</span><span>review</span><span>history</span>
+                </div>
+              </div>
+              <div class="arrow" aria-hidden="true">▼</div>
+              <div class="layer">
+                <span class="who">Pi, unmodified</span>
+                <span class="what">the agent: sessions, tools, skills, your logins</span>
+              </div>
+              <div class="arrow" aria-hidden="true">▼</div>
+              <div class="layer">
+                <span class="who">Your model providers</span>
+                <span class="what">Anthropic · OpenAI · GitHub Copilot · xAI · Kimi · and whatever else Pi can log into</span>
+              </div>
+            </div>
+            <div class="stack-text reveal">
+              <h3>What Sidebet is not</h3>
+              <p>Saying this plainly is the point.</p>
+              <ul>
+                <li>
+                  <span><strong>Not a model, a proxy or an inference layer.</strong> Prompts go to the
+                  providers you already logged into through Pi, exactly as they would from Pi.</span>
+                </li>
+                <li>
+                  <span><strong>Not a fork of Pi.</strong> It uses Pi's public SDK and reads the
+                  credentials, default model, skills and <code>AGENTS.md</code> Pi already has.
+                  Nothing to re-enter.</span>
+                </li>
+                <li>
+                  <span><strong>Not a benchmark.</strong> It reports what happened on your tasks, in
+                  your repo, with your tests. No leaderboards, no "best model".</span>
+                </li>
+                <li>
+                  <span><strong>Not a cloud service.</strong> Everything in v1 runs on your machine
+                  with no account. See the roadmap for what may come later.</span>
+                </li>
+                <li>
+                  <span><strong>Not a chat app or an IDE.</strong> It is a CLI built on Pi's own
+                  terminal toolkit, so it looks and behaves like Pi.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ HOW IT WORKS ============ -->
+      <section class="section" id="how">
+        <div class="wrap">
+          <div class="section-head reveal">
+            <p class="kicker">How it works</p>
+            <h2>Six commands, from a fresh repo to evidence.</h2>
+            <p>
+              Everything below is implemented and tested today. The output shown is illustrative; the
+              models are examples.
+            </p>
+          </div>
+
+          <div class="steps reveal">
+            <div class="tablist" role="tablist" aria-label="Workflow steps">
+              <button class="tab" role="tab" id="tab-init" aria-controls="panel-init" aria-selected="true">
+                <span class="n">01</span><span class="t">sidebet init</span>
+                <span class="d">Point it at a repository.</span>
+              </button>
+              <button class="tab" role="tab" id="tab-run" aria-controls="panel-run" aria-selected="false" tabindex="-1">
+                <span class="n">02</span><span class="t">sidebet run</span>
+                <span class="d">Context that follows you.</span>
+              </button>
+              <button class="tab" role="tab" id="tab-compare" aria-controls="panel-compare" aria-selected="false" tabindex="-1">
+                <span class="n">03</span><span class="t">sidebet compare</span>
+                <span class="d">Same task, several models, safely.</span>
+              </button>
+              <button class="tab" role="tab" id="tab-review" aria-controls="panel-review" aria-selected="false" tabindex="-1">
+                <span class="n">04</span><span class="t">sidebet review</span>
+                <span class="d">Real metrics, then an undoable apply.</span>
+              </button>
+              <button class="tab" role="tab" id="tab-odds" aria-controls="panel-odds" aria-selected="false" tabindex="-1">
+                <span class="n">05</span><span class="t">sidebet odds</span>
+                <span class="d">Your own history as evidence.</span>
+              </button>
+              <button class="tab" role="tab" id="tab-ui" aria-controls="panel-ui" aria-selected="false" tabindex="-1">
+                <span class="n">06</span><span class="t">sidebet ui</span>
+                <span class="d">All of it in a browser, locally.</span>
+              </button>
+            </div>
+
+            <div class="panels">
+              <!-- 01 init -->
+              <div class="panel" role="tabpanel" id="panel-init" aria-labelledby="tab-init" data-active="true">
+                <div class="lead">
+                  <h3>Init in seconds. Nothing to re-enter.</h3>
+                  <p>
+                    Sidebet inspects an existing repository and reports what it found: language,
+                    package manager, test command, an existing <code>AGENTS.md</code>, and how many
+                    models Pi has credentials for. It writes exactly one small file, never overwrites
+                    it, and is idempotent.
+                  </p>
+                </div>
+                <div class="term">
+                  <div class="term-bar"><div class="dots" aria-hidden="true"><i></i><i></i><i></i></div><span class="title">~/credits-api</span><span class="cmd">init</span></div>
+                  <div class="term-body"><pre><span class="t-prompt">sidebet init</span>
+<span class="t-bold">Sidebet initialized</span>
+
+<span class="t-dim">Project</span>      credits-api
+<span class="t-dim">Runtime</span>      pi 1.1.0
+<span class="t-dim">Language</span>     TypeScript
+<span class="t-dim">Package mgr</span>  pnpm
+<span class="t-dim">Rules</span>        AGENTS.md detected
+<span class="t-dim">Models</span>       7 available (default anthropic/claude-sonnet-5-5)
+<span class="t-dim">Tests</span>        pnpm test
+
+Wrote .sidebet/config.json <span class="t-dim">(commit it to share the project id)</span>
+
+<span class="t-ok">You're ready.</span>
+
+  <span class="t-accent">sidebet run "Explain this repository"</span>
+  <span class="t-accent">sidebet compare "Improve the search handler"</span></pre></div>
+                </div>
+              </div>
+
+              <!-- 02 run -->
+              <div class="panel" role="tabpanel" id="panel-run" aria-labelledby="tab-run" data-active="false">
+                <div class="lead">
+                  <h3>Run with context that follows you.</h3>
+                  <p>
+                    Rules are always injected. Memory is advisory, searched per task, and never
+                    overrides a rule. <code>--dry-run</code> shows the whole plan, every context item
+                    and the reason it was included, without calling a model. <code>--readonly</code>
+                    removes write tools in code, not in the prompt, and verifies the tree afterwards.
+                  </p>
+                </div>
+                <div class="term">
+                  <div class="term-bar"><div class="dots" aria-hidden="true"><i></i><i></i><i></i></div><span class="title">~/credits-api</span><span class="cmd">run --dry-run</span></div>
+                  <div class="term-body"><pre><span class="t-prompt">sidebet memory add "Search must stay case-insensitive; never run regexes on user input"</span>
+<span class="t-ok">Saved</span> mem_fa704c29 <span class="t-dim">(project). Included in relevant future runs; explicit rules still take precedence.</span>
+
+<span class="t-prompt">sidebet run "Make search case-insensitive" --dry-run</span>
+<span class="t-bold">Dry run:</span> nothing will be executed, no model will be called, nothing is saved.
+
+<span class="t-dim">Task</span>          Make search case-insensitive
+<span class="t-dim">Mode</span>          run in your working tree
+<span class="t-dim">Models</span>        anthropic/claude-sonnet-5-5
+<span class="t-dim">Tools</span>         read, bash, edit, write
+<span class="t-dim">Policy</span>        pol_3a11f4fdbe16
+
+<span class="t-bold">Why each item</span>
+  <span class="t-dim">native</span>   agents  AGENTS.md                      ~410t  <span class="t-dim">- loaded by the runtime itself</span>
+  <span class="t-ok">injected</span> rules   .sidebet/rules/conventions.md  ~260t  <span class="t-dim">- always injected</span>
+  <span class="t-ok">injected</span> memory  mem_fa704c29                   ~21t   <span class="t-dim">- included: matched task</span>
+
+<span class="t-bold">Policy decisions</span>
+  protected paths: .env, .env.*, **/*.pem, **/*.key, **/id_rsa*, .git/**
+  approval required (bash): rm -rf, git push, git reset --hard, git clean, sudo, curl | sh
+
+<span class="t-dim">Estimated context: 691 tokens (281 injected by Sidebet, 410 loaded by the runtime, budget 12,000)</span></pre></div>
+                </div>
+              </div>
+
+              <!-- 03 compare -->
+              <div class="panel" role="tabpanel" id="panel-compare" aria-labelledby="tab-compare" data-active="false">
+                <div class="lead">
+                  <h3>Compare, safely.</h3>
+                  <p>
+                    Two or more models run the same task concurrently, each in its own Git worktree
+                    created from a snapshot of your working tree, uncommitted changes included. Your
+                    files are never touched. Each attempt gets your test suite. Afterwards a metrics
+                    table puts them side by side; <code>◂</code> marks the better value for that one
+                    metric, and nothing is combined into a score.
+                  </p>
+                </div>
+                <div class="term">
+                  <div class="term-bar"><div class="dots" aria-hidden="true"><i></i><i></i><i></i></div><span class="title">~/credits-api</span><span class="cmd">compare</span></div>
+                  <div class="term-body"><pre><span class="t-prompt">sidebet compare "Make search case-insensitive and add a test for it" --models sonnet,gpt5</span>
+Comparing <span class="t-a">anthropic/claude-sonnet-5-5</span> vs <span class="t-b">openai/gpt-5.5</span>
+<span class="t-dim">Attempts start from a snapshot of your working tree (2 uncommitted changes included). Your files are untouched.</span>
+<span class="t-dim">…</span>
+
+<span class="t-bold">Metrics</span></pre>
+<table class="metrics" aria-label="Metrics comparing attempt A and attempt B">
+  <thead><tr><th></th><th class="a">A  claude-sonnet-5-5</th><th class="b">B  gpt-5.5</th></tr></thead>
+  <tbody>
+    <tr><th>Status</th><td>completed</td><td>completed</td></tr>
+    <tr><th>Total time</th><td>2m 58s <span class="best">◂</span></td><td>3m 31s</td></tr>
+    <tr><th>Agent time</th><td>2m 31s <span class="best">◂</span></td><td>3m 02s</td></tr>
+    <tr><th>Time to first token</th><td>1.4s <span class="best">◂</span></td><td>2.1s</td></tr>
+    <tr><th>Time to first edit</th><td>41s <span class="best">◂</span></td><td>1m 12s</td></tr>
+    <tr><th>Turns</th><td>6</td><td>9</td></tr>
+    <tr><th>Tool calls</th><td>14 (read 6, edit 3, bash 3, grep 1, write 1)</td><td>21 (read 8, edit 5, bash 4, find 2, grep 1, write 1)</td></tr>
+    <tr><th>Tool errors / blocked</th><td>0 / 0</td><td>0 / 1</td></tr>
+    <tr><th>Input tokens</th><td>45.1k <span class="best">◂</span></td><td>57.9k</td></tr>
+    <tr><th>Output tokens</th><td>3.1k <span class="best">◂</span></td><td>3.8k</td></tr>
+    <tr><th>Total tokens</th><td>48.2k <span class="best">◂</span></td><td>61.7k</td></tr>
+    <tr><th>Cost</th><td>$0.21</td><td>not reported</td></tr>
+    <tr><th>Files changed</th><td>2</td><td>3</td></tr>
+    <tr><th>Lines +/-</th><td>+38 / -12</td><td>+71 / -19</td></tr>
+    <tr><th>Tests</th><td><span class="t-ok">passed (14 passed)</span></td><td><span class="t-ok">passed (14 passed)</span></td></tr>
+  </tbody>
+</table>
+<pre>  <span class="t-dim">◂ marks the better value for that single metric; metrics are not combined into a score.</span>
+  <span class="t-dim">Cost is what the runtime reported; subscription logins often report none, and nothing is estimated.</span>
+
+<span class="t-dim">next</span>  <span class="t-accent">sidebet review run_7f3a9c21</span>   <span class="t-dim">your working tree was not modified</span></pre></div>
+                </div>
+              </div>
+
+              <!-- 04 review -->
+              <div class="panel" role="tabpanel" id="panel-review" aria-labelledby="tab-review" data-active="false">
+                <div class="lead">
+                  <h3>Review with real metrics. Apply with an undo.</h3>
+                  <p>
+                    Diffs open in a full-screen viewer with Pi's own rendering. You record which
+                    result you prefer and why. Applying previews the files, warns about your local
+                    edits, refuses on conflict, saves a backup ref first, changes only the working
+                    tree, and prints the command to undo it. Nothing is ever merged automatically.
+                  </p>
+                </div>
+                <div class="term">
+                  <div class="term-bar"><div class="dots" aria-hidden="true"><i></i><i></i><i></i></div><span class="title">~/credits-api</span><span class="cmd">review</span></div>
+                  <div class="term-body"><pre><span class="t-prompt">sidebet review</span>
+<span class="t-dim">run_7f3a9c21 ·</span> <span class="t-a">A claude-sonnet-5-5</span> <span class="t-dim">vs</span> <span class="t-b">B gpt-5.5</span>
+
+  <span class="t-accent">▸ View A diff</span>
+    View B diff
+    Compare A and B
+    Select preferred result
+    Record review                       <span class="t-dim">accepted or not, with a reason</span>
+    Apply a result to this repository
+    Check out an attempt in a worktree
+    Exit
+
+<span class="t-ok">Recorded</span> <span class="t-dim">rev_48d693c9 · preferred A · accepted · "smaller diff, kept the existing test structure" · your call ◉ matched</span>
+
+<span class="t-bold">Apply A (anthropic/claude-sonnet-5-5) to /Users/you/credits-api</span>
+     src/search.ts
+     test/search.test.ts
+<span class="t-dim">Applies to the working tree only (no commit, index untouched). A backup ref of your current tree is saved first.</span>
+Apply these changes? [y/N] y
+<span class="t-ok">Applied 2 files.</span>
+  Attempt kept at:   refs/sidebet/runs/run_7f3a9c21/A
+  To undo:           git checkout refs/sidebet/backups/run_7f3a9c21 -- "src/search.ts"   <span class="t-dim">(for files that existed before)</span></pre></div>
+                </div>
+              </div>
+
+              <!-- 05 odds -->
+              <div class="panel" role="tabpanel" id="panel-odds" aria-labelledby="tab-odds" data-active="false">
+                <div class="lead">
+                  <h3>Learn from your own history.</h3>
+                  <p>
+                    Per model: runs, test pass rate (objective), how often you preferred it (human),
+                    acceptance, median time, tokens and cost. Sample sizes are always shown. The
+                    head-to-head table only uses runs where both models attempted the same task.
+                    <code>sidebet bet A</code> records your prediction before you read the diffs;
+                    <code>odds</code> reports how often your calls matched, a measure of your
+                    judgement, not of the models.
+                  </p>
+                </div>
+                <div class="term">
+                  <div class="term-bar"><div class="dots" aria-hidden="true"><i></i><i></i><i></i></div><span class="title">~/credits-api</span><span class="cmd">odds</span></div>
+                  <div class="term-body"><pre><span class="t-prompt">sidebet odds</span>
+<span class="t-chip">▗▟<span class="t-gold">▀</span>▙▖</span>  <span class="t-accent t-bold">sidebet</span> <span class="t-dim">v0.1.0</span>  <span class="t-muted">odds · credits-api</span>
+<span class="t-chip">▝▜<span class="t-gold">▄</span>▛▘</span>  <span class="t-muted">31 finished runs · 31 compare · 26 with a recorded preference</span>
+
+<span class="t-dim">Model                        Runs  Tests passed (objective)  Preferred (human)      Accepted     Median time  Median tokens  Median cost</span>
+<span class="t-a">anthropic/claude-sonnet-5-5</span>  31    <span class="bar"><span class="f">███████</span><span class="e">░</span></span> 27/31 (87%)      <span class="bar pref"><span class="f">██████</span><span class="e">░░</span></span> 19/26 (73%)  22/26 (85%)  3m 04s       52.1k          $0.24
+<span class="t-b">openai/gpt-5.5</span>               31    <span class="bar"><span class="f">██████</span><span class="e">░░</span></span> 24/31 (77%)      <span class="bar pref"><span class="f">██</span><span class="e">░░░░░░</span></span> 7/26 (27%)   18/26 (69%)  3m 48s       64.9k          n/a
+
+<span class="t-bold">Head-to-head</span> <span class="t-dim">(same task, both attempted)</span>
+  claude-sonnet-5-5 vs gpt-5.5: 31 runs; preferred 19-7; tests: 22 both passed, 5 only sonnet, 2 only gpt-5.5, 2 both failed <span class="t-dim">(n=31)</span>
+
+<span class="t-bold">Your calls</span>  <span class="t-gold">◉◉</span><span class="t-dim">◎</span><span class="t-gold">◉◉◉</span><span class="t-dim">◎</span><span class="t-gold">◉◉◉◉◉</span>  21/26 matched your later preference
+  <span class="t-dim">A call is a `sidebet bet` placed before reviewing; it measures your prediction, not the models.</span>
+
+<span class="t-dim">• Test pass rate and preference are different evidence: tests are objective but only as good as your suite;
+  preference is your judgement. They are shown separately and never blended.
+• Cost is shown only where the runtime reported one; missing costs are not estimated.</span></pre></div>
+                </div>
+              </div>
+
+              <!-- 06 ui -->
+              <div class="panel" role="tabpanel" id="panel-ui" aria-labelledby="tab-ui" data-active="false">
+                <div class="lead">
+                  <h3>See everything in a browser. Locally.</h3>
+                  <p>
+                    <code>sidebet ui</code> serves a read-only web view of the same records: every
+                    run, attempts side by side, metrics, per-file diffs, tool calls, test output, the
+                    exact context the model received, odds and memory. It binds to
+                    <code>127.0.0.1</code>, has no write endpoints, and adds no dependencies.
+                  </p>
+                </div>
+                <div class="term">
+                  <div class="term-bar"><div class="dots" aria-hidden="true"><i></i><i></i><i></i></div><span class="title">~/credits-api</span><span class="cmd">ui</span></div>
+                  <div class="term-body"><pre><span class="t-prompt">sidebet ui</span>
+<span class="t-chip">▗▟<span class="t-gold">▀</span>▙▖</span>  <span class="t-accent t-bold">sidebet</span> <span class="t-dim">v0.1.0</span>  <span class="t-muted">ui · credits-api</span>
+<span class="t-chip">▝▜<span class="t-gold">▄</span>▛▘</span>  <span class="t-muted">http://127.0.0.1:4242/</span>  <span class="t-dim">ctrl+c to stop</span>
+
+<span class="t-dim">Read-only. Serves this project's runs, attempts, diffs, context snapshots, odds and memory
+from ~/.sidebet/sidebet.db to your browser. Nothing leaves your machine.</span>
+
+<span class="t-prompt">sidebet runs</span>
+<span class="t-dim">ID            STATUS     KIND     MODELS                     WHEN     TASK</span>
+run_7f3a9c21  <span class="t-ok">completed</span>  compare  sonnet-5-5 vs gpt-5.5      2m ago   Make search case-insensitive and add a test for it
+run_c41e08d2  <span class="t-ok">completed</span>  compare  sonnet-5-5 vs gpt-5.5      3h ago   Add input validation to the credits endpoint
+run_9be0a7f3  <span class="t-ok">completed</span>  run      sonnet-5-5                 1d ago   Explain the auth flow <span class="t-dim">read-only</span>
+run_2d7c5e10  <span class="t-err">timeout</span>    compare  sonnet-5-5 vs gpt-5.5      2d ago   Migrate the search index to the new schema</pre></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ FEATURES ============ -->
+      <section class="section" id="features">
+        <div class="wrap">
+          <div class="section-head reveal">
+            <p class="kicker">Everything around the agent</p>
+            <h2>The harness, command by command.</h2>
+            <p>Each of these exists today and is covered by tests that run without paid model calls.</p>
+          </div>
+          <div class="features reveal">
+            <article class="feature">
+              <code>sidebet init</code>
+              <h3>Detects, never dictates</h3>
+              <p>Git, package manager, test command, AGENTS.md, Pi models and skills. Writes one small config file. Idempotent.</p>
+            </article>
+            <article class="feature">
+              <code>sidebet run</code>
+              <h3>One task, full receipts</h3>
+              <p>A Pi-backed session with your rules and memory injected, tool activity streamed, usage and the exact change set recorded.</p>
+            </article>
+            <article class="feature">
+              <code>--readonly · --dry-run</code>
+              <h3>Safe modes that are real</h3>
+              <p>Read-only exposes only read, grep, find and ls, blocks writes in code and verifies the tree afterwards. Dry run prints the whole plan and calls nothing.</p>
+            </article>
+            <article class="feature">
+              <code>sidebet compare</code>
+              <h3>Isolated, concurrent, measured</h3>
+              <p>Several models, one task, each in its own worktree from a snapshot of your tree. Tests per attempt. A live dashboard while it runs.</p>
+            </article>
+            <article class="feature">
+              <code>sidebet review</code>
+              <h3>Metrics, diffs, verdict, apply</h3>
+              <p>Column-by-column metrics, full-screen diffs, a recorded review, and an apply that previews, backs up, refuses conflicts and prints the undo.</p>
+            </article>
+            <article class="feature">
+              <code>sidebet odds · bet</code>
+              <h3>Your own evidence</h3>
+              <p>Pass rates, preferences and medians per model, sample sizes always shown. Place a call before reviewing and learn how good your instincts are.</p>
+            </article>
+            <article class="feature">
+              <code>sidebet runs · rerun</code>
+              <h3>History you can replay</h3>
+              <p>Every run, attempt and diff. Rerun with the original context snapshot or the current one, stated explicitly. Inputs are reproduced, not outputs.</p>
+            </article>
+            <article class="feature">
+              <code>sidebet context</code>
+              <h3>Transparent context</h3>
+              <p>What the agent would receive now, or the stored snapshot of any past run: each item injected, native or omitted, its tokens, and why.</p>
+            </article>
+            <article class="feature">
+              <code>sidebet memory</code>
+              <h3>Memory that knows its place</h3>
+              <p>Project and global memory in SQLite with full-text search. Advisory: rules always win. Suggestions are shown, never saved without you.</p>
+            </article>
+            <article class="feature">
+              <code>sidebet policy check</code>
+              <h3>Policy, enforced in code</h3>
+              <p>Provider and model allow-lists, tool deny lists, protected paths and approval-required commands. The matrix says what is enforced, partial or unsupported.</p>
+            </article>
+            <article class="feature">
+              <code>sidebet ui · doctor</code>
+              <h3>Local web view, honest diagnostics</h3>
+              <p>A read-only browser view of runs, diffs, context, odds and memory on 127.0.0.1. Doctor explains what Sidebet sees and why something was refused.</p>
+            </article>
+            <article class="feature">
+              <code>pi install ./extensions/pi</code>
+              <h3>Inside Pi too</h3>
+              <p>/sidebet-compare, /sidebet-review and /sidebet-odds inside Pi, plus your rules and relevant memory added to plain Pi sessions.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ TRUST ============ -->
+      <section class="section" id="trust">
+        <div class="wrap">
+          <div class="section-head reveal">
+            <p class="kicker">Trust</p>
+            <h2>Read this before trusting it.</h2>
+            <p>
+              Sidebet separates <strong>instructions to a model</strong> from
+              <strong>enforcement in code</strong>. A model can ignore an instruction. It cannot
+              ignore a hook that blocks the tool call before it runs. Here is which is which.
+            </p>
+          </div>
+          <div class="trust">
+            <div class="tcol ok reveal">
+              <h3><span class="mark">✓</span> Enforced in code</h3>
+              <ul>
+                <li><strong>Model and provider policy</strong> is checked before a session starts. Denied models are never contacted.</li>
+                <li><strong>Read-only mode:</strong> write-capable tools are not exposed, a tool-call hook blocks them anyway, user extensions are not loaded, and the tree is compared before and after.</li>
+                <li><strong>Tool allow and deny lists</strong>, protected path patterns for file tools, and approval-required commands that pause for a human on a terminal and are denied otherwise.</li>
+                <li><strong>Secret redaction</strong> for well-known shapes (private keys, cloud and API tokens, KEY=value lines) before anything is injected or stored.</li>
+                <li><strong>Fail closed:</strong> if the policy hook cannot load inside Pi, the attempt does not run.</li>
+              </ul>
+            </div>
+            <div class="tcol no reveal">
+              <h3><span class="mark">!</span> Not enforced. Be aware.</h3>
+              <ul>
+                <li><strong>A shell can read anything.</strong> Commands that literally name a protected path are blocked, best effort. <code>policy.strict</code> removes bash entirely.</li>
+                <li><strong>Pi extensions and skills run with your permissions</strong>, outside Sidebet policy except in read-only mode.</li>
+                <li><strong>Redaction is pattern-based.</strong> Novel secret formats will not be caught. Do not put secrets in rules or memory.</li>
+                <li><strong>No sandbox.</strong> Agents run as you. Worktrees isolate Git state, not the filesystem or the network.</li>
+                <li><strong>Local data is unencrypted.</strong> Run records, diffs and redacted context live in <code>~/.sidebet/sidebet.db</code>. Prompts go to the providers you chose, exactly as with Pi.</li>
+              </ul>
+            </div>
+          </div>
+          <p class="trust-foot reveal">
+            The complete list is in
+            <a href="https://github.com/jamesray/sidebet/blob/main/docs/security.md" rel="noopener">docs/security.md</a>.
+            <code>sidebet policy check</code> prints the same matrix for your own configuration.
+          </p>
+        </div>
+      </section>
+
+      <!-- ============ ROADMAP ============ -->
+      <section class="section" id="roadmap">
+        <div class="wrap">
+          <div class="section-head reveal">
+            <p class="kicker">Roadmap</p>
+            <h2>Where this is going.</h2>
+            <p>
+              <strong>Open core.</strong> The CLI, the core library and the Pi adapter are Apache-2.0
+              and stay that way. Everything in the first column exists; the rest is intent, not a
+              promise.
+            </p>
+          </div>
+          <div class="roadmap">
+            <div class="rcol now reveal">
+              <span class="when"><i></i>Now · v0.1</span>
+              <h3>Shipped and local</h3>
+              <p class="sub">Everything on this page runs on your machine today.</p>
+              <ul>
+                <li><strong>init, run, compare, review, odds, bet, runs, rerun</strong></li>
+                <li>Context inspection and persistent memory with full-text search</li>
+                <li>Policy: read-only, allow and deny lists, protected paths, approvals</li>
+                <li>Live dashboard, metrics table, full-screen diff viewer</li>
+                <li>Pi extension: /sidebet-compare, /sidebet-review, /sidebet-odds</li>
+                <li>Local read-only web view with <code>sidebet ui</code></li>
+              </ul>
+            </div>
+            <div class="rcol next reveal">
+              <span class="when"><i></i>Next · v1.x</span>
+              <h3>Sharper defaults</h3>
+              <p class="sub">What we intend to build next, in roughly this order.</p>
+              <ul>
+                <li>Smarter default compare pairs that prefer models with history in <code>odds</code></li>
+                <li>Per-attempt <code>.env</code> handling for worktrees so more test suites run unmodified</li>
+                <li>Policy enforcement in plain Pi sessions through the extension</li>
+                <li>Windows support</li>
+                <li>Stronger memory suggestions, still human-approved</li>
+                <li><code>sidebet export</code> and <code>import</code> of run records</li>
+              </ul>
+            </div>
+            <div class="rcol later reveal">
+              <span class="when"><i></i>Later · Sidebet Cloud</span>
+              <h3>Optional, for teams</h3>
+              <p class="sub">Not built. The local CLI stays complete without it.</p>
+              <ul>
+                <li>Sync of runs and evaluation history across machines</li>
+                <li>Shared team memory and rules</li>
+                <li>An organisation policy layer above your local policy</li>
+                <li>Hosted evaluation history and a team console</li>
+                <li>A second runtime behind the same <code>AgentRuntime</code> interface</li>
+                <li>Versioned protocol and SDK packages</li>
+              </ul>
+            </div>
+          </div>
+          <p class="nongoals reveal">
+            <strong>Non-goals for now:</strong> accounts, cloud sync, a vector store, a plugin
+            marketplace, automatic memory promotion, automatic merging.
+          </p>
+
+          <div class="interest reveal" id="interest">
+            <div>
+              <h3>Would Sidebet matter to your team?</h3>
+              <p>
+                Shared memory, team policy and hosted history are the cloud product we have not built.
+                If you want it, say so. Interest decides what gets built next.
+              </p>
+            </div>
+            <form id="interest-form" data-endpoint="" novalidate>
+              <label class="sr-only" for="interest-email">Email</label>
+              <input id="interest-email" name="email" type="email" placeholder="you@company.com" autocomplete="email" required />
+              <button class="btn btn-primary" type="submit">Keep me posted</button>
+              <p class="note" id="interest-note">No list, no tracking. One email when there is something to show.</p>
+            </form>
+            <div class="links" id="interest-links" hidden>
+              <a class="btn btn-primary" href="https://github.com/jamesray/sidebet/subscription" rel="noopener">Watch releases on GitHub</a>
+              <a class="btn btn-ghost" href="https://github.com/jamesray/sidebet/issues/new?title=Interested%20in%20Sidebet%20for%20a%20team" rel="noopener">Tell us about your team</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ GET STARTED ============ -->
+      <section class="section" id="start">
+        <div class="wrap">
+          <div class="section-head reveal">
+            <p class="kicker">Get started</p>
+            <h2>Your first comparison in about twenty minutes.</h2>
+          </div>
+          <div class="start">
+            <div class="reveal">
+              <h3>If Pi runs on your machine, Sidebet runs.</h3>
+              <p>
+                Sidebet reuses your Pi login and your <code>AGENTS.md</code>. There are no accounts
+                and nothing to re-enter. The walkthrough below ends with you comparing two models on a
+                real change and choosing which result to keep.
+              </p>
+              <div class="req">
+                <span>Node ≥ 22.19</span><span>pnpm</span><span>Git</span><span>Pi 1.1</span><span>macOS · Linux</span>
+              </div>
+              <ul class="docs-list">
+                <li><a href="https://github.com/jamesray/sidebet/blob/main/docs/getting-started.md" rel="noopener">Getting started walkthrough <span>docs/getting-started.md</span></a></li>
+                <li><a href="https://github.com/jamesray/sidebet/blob/main/docs/cli.md" rel="noopener">CLI reference <span>docs/cli.md</span></a></li>
+                <li><a href="https://github.com/jamesray/sidebet/blob/main/docs/configuration.md" rel="noopener">Configuration <span>docs/configuration.md</span></a></li>
+                <li><a href="https://github.com/jamesray/sidebet/blob/main/docs/security.md" rel="noopener">Security model and limitations <span>docs/security.md</span></a></li>
+                <li><a href="https://github.com/jamesray/sidebet/blob/main/docs/architecture.md" rel="noopener">Architecture <span>docs/architecture.md</span></a></li>
+                <li><a href="https://github.com/jamesray/sidebet/blob/main/docs/pi-integration.md" rel="noopener">Pi integration <span>docs/pi-integration.md</span></a></li>
+              </ul>
+            </div>
+            <div class="reveal">
+              <div class="codeblock">
+                <div class="label"><span>Install from source</span>
+                  <button class="copy" type="button" data-copy="#code-install" aria-label="Copy install commands">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2" /><path d="M5 15V5a2 2 0 0 1 2-2h10" /></svg>
+                  </button>
+                </div>
+<pre id="code-install">git clone https://github.com/jamesray/sidebet.git
+cd sidebet
+pnpm install &amp;&amp; pnpm build
+cd apps/cli &amp;&amp; pnpm link --global   <span class="c"># puts `sidebet` on your PATH</span>
+sidebet doctor</pre>
+              </div>
+              <div class="codeblock">
+                <div class="label"><span>Your first comparison</span>
+                  <button class="copy" type="button" data-copy="#code-first" aria-label="Copy first comparison commands">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2" /><path d="M5 15V5a2 2 0 0 1 2-2h10" /></svg>
+                  </button>
+                </div>
+<pre id="code-first">cd your-project
+sidebet init
+sidebet models                                   <span class="c"># the models you are logged into in Pi</span>
+sidebet compare "Make search case-insensitive" --models &lt;a&gt;,&lt;b&gt;
+sidebet review</pre>
+              </div>
+              <div class="codeblock">
+                <div class="label"><span>Optional: inside Pi</span></div>
+<pre>pi install ./extensions/pi   <span class="c"># adds /sidebet, /sidebet-compare, /sidebet-review, /sidebet-odds</span></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ CTA ============ -->
+      <section class="band">
+        <div class="wrap reveal">
+          <h2>Stop guessing which model to trust.</h2>
+          <p>Run the task on both. Read the diffs. Keep the receipts.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#start">Get started</a>
+            <a class="btn btn-ghost" href="https://github.com/jamesray/sidebet" rel="noopener">Star on GitHub</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="wrap">
+        <a class="brand" href="#top">
+          <img class="chip" src="assets/favicon.svg" alt="" width="22" height="22" />
+          sidebet
+        </a>
+        <nav aria-label="Footer">
+          <a href="https://github.com/jamesray/sidebet" rel="noopener">GitHub</a>
+          <a href="https://github.com/jamesray/sidebet/tree/main/docs" rel="noopener">Docs</a>
+          <a href="https://github.com/jamesray/sidebet/blob/main/docs/getting-started.md" rel="noopener">Getting started</a>
+          <a href="https://github.com/jamesray/sidebet/blob/main/docs/security.md" rel="noopener">Security</a>
+          <a href="https://github.com/jamesray/sidebet/blob/main/CONTRIBUTING.md" rel="noopener">Contributing</a>
+          <a href="https://github.com/earendil-works/pi" rel="noopener">Pi</a>
+        </nav>
+        <div class="legal">
+          <span>© <span id="year">2026</span> James Ray · Apache-2.0</span>
+          <span>Built on Pi, an independent open-source project.</span>
+          <span>Same context. Different models. Better decisions.</span>
+        </div>
+      </div>
+    </footer>
+
+    <script src="assets/site.js" defer></script>
+  </body>
+</html>

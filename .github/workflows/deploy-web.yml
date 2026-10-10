@@ -1,0 +1,105 @@
+name: Deploy website
+
+# Deploys apps/web (plain static files) to Cloudflare Pages with Wrangler.
+# main -> production deployment; pull requests -> preview deployment with the URL as a PR comment.
+#
+# Required repository secrets:  CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_API_TOKEN (Account > Cloudflare Pages > Edit)
+# Optional repository variables: CF_PAGES_PROJECT (default "sidebet"), SITE_URL (e.g. https://sidebet.dev)
+
+on:
+  push:
+    branches: [main]
+    paths: ['apps/web/**', '.github/workflows/deploy-web.yml']
+  pull_request:
+    paths: ['apps/web/**', '.github/workflows/deploy-web.yml']
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-web-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Cloudflare Pages
+    runs-on: ubuntu-latest
+    # Forks cannot read the secrets, so skip preview deployments for fork PRs.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    permissions:
+      contents: read
+      pull-requests: write
+      deployments: write
+    env:
+      PROJECT: ${{ vars.CF_PAGES_PROJECT || 'sidebet' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare site
+        env:
+          SITE_URL: ${{ vars.SITE_URL }}
+        run: |
+          rm -rf dist-web && cp -R apps/web dist-web
+          rm -f dist-web/README.md dist-web/assets/og.svg
+          if [ -n "$SITE_URL" ]; then
+            site="${SITE_URL%/}"
+            sed -i "s#https://sidebet.pages.dev#${site}#g" dist-web/index.html
+            echo "Rewrote canonical/OG URLs to ${site}"
+          fi
+
+      - name: Ensure Pages project exists
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages project list
+        id: list
+
+      - name: Create Pages project if missing
+        if: ${{ !contains(steps.list.outputs.command-output, env.PROJECT) }}
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages project create ${{ env.PROJECT }} --production-branch main
+
+      - name: Deploy
+        id: deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          command: >-
+            pages deploy dist-web
+            --project-name=${{ env.PROJECT }}
+            --branch=${{ github.head_ref || github.ref_name }}
+            --commit-hash=${{ github.event.pull_request.head.sha || github.sha }}
+            --commit-dirty=true
+
+      - name: Summary
+        run: |
+          {
+            echo "### Website deployed"
+            echo
+            echo "- Project: \`$PROJECT\`"
+            echo "- Branch: \`${{ github.head_ref || github.ref_name }}\`"
+            echo "- URL: ${{ steps.deploy.outputs.deployment-url }}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Comment preview URL on the pull request
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        env:
+          URL: ${{ steps.deploy.outputs.deployment-url }}
+        with:
+          script: |
+            const marker = '<!-- sidebet-web-preview -->'
+            const body = `${marker}\n**Website preview:** ${process.env.URL}\n\n_Built from ${context.payload.pull_request.head.sha.slice(0, 7)}._`
+            const { data: comments } = await github.rest.issues.listComments({
+              ...context.repo, issue_number: context.issue.number, per_page: 100,
+            })
+            const mine = comments.find((c) => c.body && c.body.startsWith(marker))
+            if (mine) {
+              await github.rest.issues.updateComment({ ...context.repo, comment_id: mine.id, body })
+            } else {
+              await github.rest.issues.createComment({ ...context.repo, issue_number: context.issue.number, body })
+            }
