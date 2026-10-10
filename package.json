@@ -1,0 +1,28 @@
+{
+  "name": "sidebet-monorepo",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.20.0",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck && tsc -p tsconfig.json --noEmit",
+    "lint": "biome check .",
+    "format": "biome check --write .",
+    "test": "turbo run build --output-logs=errors-only && vitest run",
+    "test:integration": "SIDEBET_INTEGRATION=1 vitest run tests/integration"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.15",
+    "@types/node": "^26.6.5",
+    "turbo": "^2.11.7",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3",
+    "@sidebet/core": "workspace:*",
+    "@sidebet/storage-local": "workspace:*",
+    "@sidebet/config": "workspace:*"
+  },
+  "license": "Apache-2.0"
+}

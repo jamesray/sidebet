@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "models": {
+    "aliases": { "fast": "anthropic/claude-haiku-4-5", "deep": "openai/gpt-5" },
+    "compare": ["fast", "deep"]
+  },
+  "run": { "dual": true },
+  "tests": { "command": "pnpm test" }
+}

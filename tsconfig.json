@@ -1,0 +1,5 @@
+{
+  "extends": "@sidebet/config/tsconfig.base.json",
+  "compilerOptions": { "noEmit": true },
+  "include": ["tests", "vitest.config.ts"]
+}

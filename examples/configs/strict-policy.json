@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "policy": {
+    "allowedProviders": ["anthropic", "openai"],
+    "deniedModels": ["*-preview"],
+    "protectedPaths": [".env", ".env.*", "!.env.example", "secrets/**", "**/*.pem"],
+    "approvalRequired": { "tools": [], "bash": ["git\\s+push", "npm\\s+publish"] },
+    "bashDeny": ["curl\\s", "wget\\s"],
+    "strict": true
+  }
+}

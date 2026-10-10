@@ -1,0 +1,28 @@
+{
+  "name": "@sidebet/cli",
+  "version": "0.1.0",
+  "type": "module",
+  "license": "Apache-2.0",
+  "description": "Sidebet: same context, different models, better decisions.",
+  "bin": {
+    "sidebet": "./dist/bin.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@sidebet/core": "workspace:*",
+    "@sidebet/storage-local": "workspace:*",
+    "@sidebet/runtime-pi": "workspace:*"
+  },
+  "devDependencies": {
+    "@sidebet/config": "workspace:*"
+  }
+}

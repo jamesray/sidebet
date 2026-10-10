@@ -1,0 +1,27 @@
+{
+  "name": "@sidebet/runtime-pi",
+  "version": "0.1.0",
+  "type": "module",
+  "license": "Apache-2.0",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@sidebet/core": "workspace:*",
+    "@mariozechner/pi-coding-agent": "0.73.1",
+    "@mariozechner/pi-ai": "*"
+  },
+  "devDependencies": {
+    "@sidebet/config": "workspace:*"
+  }
+}

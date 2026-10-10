@@ -1,0 +1,25 @@
+{
+  "name": "@sidebet/pi-extension",
+  "version": "0.1.0",
+  "type": "module",
+  "license": "Apache-2.0",
+  "description": "Sidebet commands and shared context inside Pi: /sidebet, /sidebet-context, /sidebet-memory, /sidebet-compare",
+  "keywords": [
+    "pi-package"
+  ],
+  "files": [
+    "index.ts"
+  ],
+  "pi": {
+    "extensions": [
+      "./index.ts"
+    ]
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "@mariozechner/pi-coding-agent": "0.73.1",
+    "@sidebet/config": "workspace:*"
+  }
+}
