@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs'
 import { readdir, readFile } from 'node:fs/promises'
-import { join, relative } from 'node:path'
+import { isAbsolute, join, relative } from 'node:path'
 import type { ProjectContext } from '../config/load.js'
 import { globalRulesDir, projectRulesDir } from '../config/paths.js'
 import { type ContextItem, type ContextSnapshot, SCHEMA_VERSION } from '../domain/schemas.js'
@@ -174,7 +174,7 @@ export const assembleContext = async (input: AssembleInput): Promise<ContextSnap
 
   // Task-specific files.
   for (const f of input.taskFiles ?? []) {
-    const path = join(project.root, f)
+    const path = isAbsolute(f) ? f : join(project.root, f)
     const r = rel(path)
     const body = await readIfExists(path)
     const base = {
