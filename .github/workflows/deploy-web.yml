@@ -45,22 +45,13 @@ jobs:
             echo "Rewrote canonical/OG URLs to ${site}"
           fi
 
-      - name: Ensure Pages project exists
-        uses: cloudflare/wrangler-action@v3
+      - uses: actions/setup-node@v4
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages project list
-        id: list
+          node-version: 24
 
-      - name: Create Pages project if missing
-        if: ${{ !contains(steps.list.outputs.command-output, env.PROJECT) }}
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages project create ${{ env.PROJECT }} --production-branch main
-
+      # One Wrangler install: create the Pages project if it does not exist yet, then deploy.
+      # packageManager is pinned to npm because the action would otherwise pick pnpm from the
+      # repo's lockfile, and pnpm is not set up in this job.
       - name: Deploy
         id: deploy
         uses: cloudflare/wrangler-action@v3
@@ -68,6 +59,14 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          packageManager: npm
+          preCommands: |
+            if wrangler pages project list 2>/dev/null | grep -qE "(^|[^A-Za-z0-9_-])${PROJECT}([^A-Za-z0-9_-]|$)"; then
+              echo "Pages project ${PROJECT} exists"
+            else
+              echo "Creating Pages project ${PROJECT}"
+              wrangler pages project create "${PROJECT}" --production-branch main
+            fi
           command: >-
             pages deploy dist-web
             --project-name=${{ env.PROJECT }}
