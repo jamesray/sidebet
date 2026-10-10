@@ -205,6 +205,72 @@ const initHero = () => {
   render(0, 0)
 }
 
+/* ---------- Hero chip: tilt toward the cursor, light follows it ---------- */
+
+const initChip = () => {
+  const stage = document.getElementById('chip-stage')
+  if (!stage || reduceMotion) return
+  const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches
+  if (!fine) return
+  const MAX_TILT = 9
+  const target = { x: 0, y: 0 }
+  const current = { x: 0, y: 0 }
+  let raf = 0
+  let visible = false
+
+  const apply = () => {
+    current.x += (target.x - current.x) * 0.08
+    current.y += (target.y - current.y) * 0.08
+    const { x, y } = current
+    stage.style.setProperty('--rx', `${(x * MAX_TILT).toFixed(2)}deg`)
+    stage.style.setProperty('--ry', `${(-y * MAX_TILT).toFixed(2)}deg`)
+    stage.style.setProperty('--sx', `${(50 + x * 36).toFixed(1)}%`)
+    stage.style.setProperty('--sy', `${(50 + y * 36).toFixed(1)}%`)
+    stage.style.setProperty('--gx', `${(x * -14).toFixed(1)}px`)
+    stage.style.setProperty('--gy', `${(y * -14).toFixed(1)}px`)
+    stage.style.setProperty('--shx', `${(x * -18).toFixed(1)}px`)
+    const settled = Math.abs(target.x - x) < 0.002 && Math.abs(target.y - y) < 0.002
+    raf = visible && !settled ? requestAnimationFrame(apply) : 0
+  }
+  const kick = () => {
+    if (!raf && visible) raf = requestAnimationFrame(apply)
+  }
+
+  window.addEventListener(
+    'mousemove',
+    (e) => {
+      if (!visible) return
+      const r = stage.getBoundingClientRect()
+      const cx = r.left + r.width / 2
+      const cy = r.top + r.height / 2
+      // Normalised offset of the cursor from the chip's centre; full tilt about 1.5 chip widths away.
+      const reach = r.width * 1.5
+      target.x = Math.max(-1, Math.min(1, (e.clientX - cx) / reach))
+      target.y = Math.max(-1, Math.min(1, (e.clientY - cy) / reach))
+      kick()
+    },
+    { passive: true },
+  )
+  document.addEventListener('mouseleave', () => {
+    target.x = 0
+    target.y = 0
+    kick()
+  })
+  const io = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) {
+        visible = e.isIntersecting
+        if (!visible && raf) {
+          cancelAnimationFrame(raf)
+          raf = 0
+        } else kick()
+      }
+    },
+    { threshold: 0.1 },
+  )
+  io.observe(stage)
+}
+
 /* ---------- Tabs ---------- */
 
 const initTabs = () => {
@@ -336,6 +402,7 @@ const initInterest = () => {
 /* ---------- Boot ---------- */
 
 initHero()
+initChip()
 initTabs()
 initCopy()
 initReveal()
