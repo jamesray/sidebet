@@ -37,7 +37,7 @@ jobs:
         env:
           SITE_URL: ${{ vars.SITE_URL }}
         run: |
-          rm -rf dist-web && cp -R apps/web dist-web
+          rm -rf dist-web deploy-tmp && cp -R apps/web dist-web && mkdir deploy-tmp
           rm -f dist-web/README.md dist-web/assets/og.svg
           if [ -n "$SITE_URL" ]; then
             site="${SITE_URL%/}"
@@ -49,30 +49,37 @@ jobs:
         with:
           node-version: 24
 
-      # One Wrangler install: create the Pages project if it does not exist yet, then deploy.
-      # packageManager is pinned to npm because the action would otherwise pick pnpm from the
-      # repo's lockfile, and pnpm is not set up in this job.
+      # Wrangler is installed in a scratch directory and called directly. cloudflare/wrangler-action
+      # installs it with `npm install` at the repo root, which fails on the monorepo's workspace:*
+      # dependencies, and it auto-detects pnpm, which this job does not set up.
       - name: Deploy
         id: deploy
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-          packageManager: npm
-          preCommands: |
-            if wrangler pages project list 2>/dev/null | grep -qE "(^|[^A-Za-z0-9_-])${PROJECT}([^A-Za-z0-9_-]|$)"; then
-              echo "Pages project ${PROJECT} exists"
-            else
-              echo "Creating Pages project ${PROJECT}"
-              wrangler pages project create "${PROJECT}" --production-branch main
-            fi
-          command: >-
-            pages deploy dist-web
-            --project-name=${{ env.PROJECT }}
-            --branch=${{ github.head_ref || github.ref_name }}
-            --commit-hash=${{ github.event.pull_request.head.sha || github.sha }}
-            --commit-dirty=true
+        shell: bash
+        working-directory: deploy-tmp
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          BRANCH: ${{ github.head_ref || github.ref_name }}
+          SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          npm init -y >/dev/null
+          npm install --no-audit --no-fund --loglevel=error wrangler@4
+          wrangler() { npx --no-install wrangler "$@"; }
+          wrangler --version
+          if wrangler pages project list 2>/dev/null | grep -qE "(^|[^A-Za-z0-9_-])${PROJECT}([^A-Za-z0-9_-]|$)"; then
+            echo "Pages project ${PROJECT} exists"
+          else
+            echo "Creating Pages project ${PROJECT}"
+            wrangler pages project create "${PROJECT}" --production-branch main
+          fi
+          wrangler pages deploy ../dist-web \
+            --project-name="${PROJECT}" \
+            --branch="${BRANCH}" \
+            --commit-hash="${SHA}" \
+            --commit-dirty=true | tee deploy.log
+          url=$(grep -oE 'https://[A-Za-z0-9.-]+\.pages\.dev' deploy.log | tail -1)
+          echo "deployment-url=${url}" >> "$GITHUB_OUTPUT"
+          echo "Deployed to ${url}"
 
       - name: Summary
         run: |
