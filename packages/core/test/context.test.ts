@@ -1,4 +1,5 @@
-import { mkdir, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { makeRepo, write } from '../../../tests/helpers.js'
@@ -151,6 +152,29 @@ describe('context assembly', () => {
     })
     expect(snap.rendered).not.toContain('SECRET=1')
     expect(snap.items.find((i) => i.source === '.env')?.reason).toContain('protected')
+  })
+
+  it('injects an absolute --context path outside the repo and keeps relative ones repo-relative', async () => {
+    const outside = await mkdtemp(join(tmpdir(), 'sidebet-ctx-'))
+    const abs = join(outside, 'notes.md')
+    await writeFile(abs, 'NOTES FROM OUTSIDE THE REPO')
+    await write(repo, 'inside.md', 'NOTES FROM INSIDE THE REPO')
+    const snap = await assembleContext({
+      project: await project(),
+      task: 't',
+      memory: createMemoryStorage().memory,
+      runtime,
+      taskFiles: [abs, 'inside.md'],
+      env: { SIDEBET_HOME: home },
+    })
+    const outsideItem = snap.items.find((i) => i.kind === 'task' && i.source === abs)
+    expect(outsideItem?.delivery).toBe('injected')
+    expect(outsideItem?.reason).toBe('passed with --context')
+    expect(snap.rendered).toContain('NOTES FROM OUTSIDE THE REPO')
+    const insideItem = snap.items.find((i) => i.kind === 'task' && i.source === 'inside.md')
+    expect(insideItem?.delivery).toBe('injected')
+    expect(snap.rendered).toContain('NOTES FROM INSIDE THE REPO')
+    expect(snap.items.filter((i) => i.kind === 'task' && i.delivery === 'omitted')).toEqual([])
   })
 
   it('drops lowest-priority items first when over budget and explains it', async () => {
