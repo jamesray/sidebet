@@ -36,9 +36,15 @@ jobs:
       - name: Prepare site
         env:
           SITE_URL: ${{ vars.SITE_URL }}
+          SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           rm -rf dist-web deploy-tmp && cp -R apps/web dist-web && mkdir deploy-tmp
           rm -f dist-web/README.md dist-web/assets/og.svg
+          # Assets are cached for a day (see apps/web/_headers); version the stylesheet and script
+          # URLs with the commit so every deploy forces browsers to fetch the new ones.
+          v="${SHA:0:12}"
+          sed -i "s#assets/site.css\"#assets/site.css?v=${v}\"#; s#assets/site.js\"#assets/site.js?v=${v}\"#" dist-web/index.html
+          grep -c "?v=${v}" dist-web/index.html
           if [ -n "$SITE_URL" ]; then
             site="${SITE_URL%/}"
             sed -i "s#https://sidebet.sh#${site}#g" dist-web/index.html
