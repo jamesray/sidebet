@@ -4,3 +4,9 @@ packages:
   - extensions/*
 onlyBuiltDependencies:
   - esbuild
+# Transitive deps of Pi. koffi ships prebuilt binaries (only used by Pi's TUI, which Sidebet never opens);
+# the other two only print post-install notices. Verified: build and tests pass with these skipped.
+ignoredBuiltDependencies:
+  - koffi
+  - '@google/genai'
+  - protobufjs
