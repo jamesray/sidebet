@@ -64,6 +64,9 @@ Apply: previews the files (`M*` marks files you also edited), requires confirmat
 ## policy
 `sidebet policy check` prints the effective policy, eligible models, and an enforcement matrix. Targeted: `--model <m>`, `--tool <t> --path <p>`, `--command "<cmd>"` (exit 1 if denied).
 
+## ui
+`sidebet ui [--port 4747] [--no-open]`. Starts a local, read-only web view of this project's runs and opens it in your browser. Runs list with status and models; a run page with attempts side by side, the metrics table, per-file diffs with line numbers, tool calls, test output and `setup.log`, the stored context snapshot (each item's delivery and reason, and the exact prompt text), reviews and bets; plus Odds and Memory pages. The page polls while a run is in progress. The server binds to `127.0.0.1` only, has no write endpoints, and serves a single static page with no build step. Stop it with Ctrl+C.
+
 ## clean
 `sidebet clean` removes leftover Sidebet worktrees for this project. Results stay in `refs/sidebet/`.
 

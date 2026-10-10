@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sidebet</title>
+<style>
+  :root {
+    --bg: #0f0f12; --panel: #17171c; --panel-2: #1d1d24; --border: #2a2a34; --text: #ebe9e4; --muted: #a6a39b; --dim: #6c6a66;
+    --accent: #b48cf2; --accent-soft: rgba(180,140,242,.14); --success: #6fd39a; --error: #f07870; --warning: #f0c36a; --info: #7ab8f0; --gold: #e8c467;
+    --laneA: #6fd0e8; --laneB: #f08ac0; --laneC: #f0c36a; --laneD: #7fdcb0;
+    --add-bg: rgba(111,211,154,.12); --del-bg: rgba(240,120,112,.12); --hunk-bg: rgba(122,184,240,.10);
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f6f5f2; --panel: #ffffff; --panel-2: #f0eeea; --border: #dedbd5; --text: #1f1e1c; --muted: #5f5d58; --dim: #8f8c86;
+      --accent: #6b3fd1; --accent-soft: rgba(107,63,209,.10); --success: #1f8a4c; --error: #c4342a; --warning: #9a6a00; --info: #1f66b3; --gold: #9a7400;
+      --laneA: #137a93; --laneB: #b8307b; --laneC: #9a6a00; --laneD: #1f8a5e;
+      --add-bg: rgba(31,138,76,.10); --del-bg: rgba(196,52,42,.10); --hunk-bg: rgba(31,102,179,.08);
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.45 var(--sans); }
+  a { color: var(--accent); text-decoration: none; }
+  button { font: inherit; color: inherit; background: none; border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+  button:hover { border-color: var(--accent); }
+  button.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+  code, pre, .mono { font-family: var(--mono); font-size: 12.5px; }
+  .muted { color: var(--muted); } .dim { color: var(--dim); } .accent { color: var(--accent); }
+  .success { color: var(--success); } .error { color: var(--error); } .warning { color: var(--warning); } .gold { color: var(--gold); }
+
+  header { display: flex; align-items: center; gap: 14px; padding: 12px 20px; border-bottom: 1px solid var(--border); background: var(--panel); position: sticky; top: 0; z-index: 2; }
+  .chip { width: 22px; height: 22px; border-radius: 50%; background: var(--gold); border: 5px solid var(--error); box-shadow: 0 0 0 1.5px var(--text) inset; position: relative; flex: none; }
+  .chip::before { content: ""; position: absolute; inset: -5px; border-radius: 50%; background:
+    repeating-conic-gradient(from 0deg, transparent 0 30deg, var(--text) 30deg 45deg, transparent 45deg 90deg); mask: radial-gradient(circle, transparent 58%, #000 60%, #000 100%); -webkit-mask: radial-gradient(circle, transparent 58%, #000 60%, #000 100%); opacity: .85; }
+  .brand { font-weight: 650; color: var(--accent); letter-spacing: .2px; }
+  .brand small { color: var(--dim); font-weight: 400; margin-left: 6px; }
+  nav { display: flex; gap: 4px; margin-left: 12px; }
+  nav button { border: none; padding: 6px 10px; border-radius: 6px; color: var(--muted); }
+  nav button.active { color: var(--accent); background: var(--accent-soft); }
+  .spacer { flex: 1; }
+  .live { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+  .live .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--dim); }
+  .live.on .dot { background: var(--success); box-shadow: 0 0 0 3px rgba(111,211,154,.2); }
+
+  main { display: grid; grid-template-columns: 360px 1fr; min-height: calc(100% - 50px); }
+  main.single { grid-template-columns: 1fr; }
+  aside { border-right: 1px solid var(--border); overflow: auto; max-height: calc(100vh - 50px); position: sticky; top: 50px; }
+  .run { padding: 12px 16px; border-bottom: 1px solid var(--border); cursor: pointer; }
+  .run:hover { background: var(--panel-2); }
+  .run.selected { background: var(--accent-soft); border-left: 3px solid var(--accent); padding-left: 13px; }
+  .run .top { display: flex; gap: 8px; align-items: center; font-size: 12px; color: var(--muted); }
+  .run .task { margin-top: 4px; color: var(--text); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .run .models { margin-top: 4px; font-size: 12px; }
+  .pill { display: inline-block; padding: 1px 7px; border-radius: 999px; font-size: 11px; border: 1px solid var(--border); color: var(--muted); }
+  .pill.completed { color: var(--success); border-color: color-mix(in srgb, var(--success) 40%, transparent); }
+  .pill.failed, .pill.timeout, .pill.error { color: var(--error); border-color: color-mix(in srgb, var(--error) 40%, transparent); }
+  .pill.partial, .pill.cancelled, .pill.skipped { color: var(--warning); border-color: color-mix(in srgb, var(--warning) 40%, transparent); }
+  .pill.running { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 50%, transparent); }
+  .lane0 { color: var(--laneA); } .lane1 { color: var(--laneB); } .lane2 { color: var(--laneC); } .lane3 { color: var(--laneD); }
+  .card.b-lane0 { border-left-color: var(--laneA); } .card.b-lane1 { border-left-color: var(--laneB); } .card.b-lane2 { border-left-color: var(--laneC); } .card.b-lane3 { border-left-color: var(--laneD); }
+
+  section.detail { padding: 20px 24px 60px; overflow: auto; }
+  .empty { color: var(--dim); padding: 60px; text-align: center; }
+  h1 { font-size: 18px; font-weight: 600; margin: 0 0 6px; }
+  h2 { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; margin: 26px 0 10px; }
+  .meta { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12.5px; color: var(--muted); }
+  .meta b { color: var(--text); font-weight: 500; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-left-width: 3px; border-radius: 8px; padding: 12px 14px; }
+  .card .title { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+  .card .title b { font-size: 15px; }
+  .card .grid { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; margin-top: 8px; font-size: 13px; }
+  .card .grid span:nth-child(odd) { color: var(--dim); }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--muted); font-weight: 500; }
+  td.best { color: var(--success); }
+  td.best::after { content: " ◂"; }
+  .meter { display: inline-block; width: 90px; height: 8px; background: var(--border); border-radius: 4px; vertical-align: middle; margin-right: 8px; overflow: hidden; }
+  .meter i { display: block; height: 100%; background: var(--accent); }
+  .tabs { display: flex; gap: 6px; margin: 18px 0 10px; flex-wrap: wrap; }
+  .diff { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 12px; }
+  .diff .file { padding: 8px 12px; background: var(--panel-2); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; cursor: pointer; }
+  .diff pre { margin: 0; overflow-x: auto; }
+  .diff .l { display: grid; grid-template-columns: 44px 44px 1fr; }
+  .diff .l span:nth-child(-n+2) { color: var(--dim); text-align: right; padding-right: 8px; user-select: none; border-right: 1px solid var(--border); }
+  .diff .l span:last-child { padding-left: 10px; white-space: pre; }
+  .diff .add { background: var(--add-bg); } .diff .add span:last-child { color: var(--success); }
+  .diff .del { background: var(--del-bg); } .diff .del span:last-child { color: var(--error); }
+  .diff .hunk { background: var(--hunk-bg); color: var(--info); padding: 2px 12px; }
+  pre.block { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 12px; white-space: pre-wrap; max-height: 420px; overflow: auto; }
+  .events { display: grid; grid-template-columns: auto auto 1fr auto; gap: 4px 12px; font-size: 12.5px; }
+  .items .it { display: grid; grid-template-columns: 90px 70px 1fr; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .chips span { font-size: 16px; letter-spacing: 2px; }
+  input[type=search] { font: inherit; color: inherit; background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 7px 10px; width: 320px; }
+  .mem { padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .mem .tags { color: var(--dim); font-size: 12px; margin-top: 2px; }
+  .caveat { color: var(--muted); font-size: 12.5px; margin: 4px 0; }
+  details summary { cursor: pointer; color: var(--muted); }
+  .spin { display: inline-block; width: 10px; height: 10px; border: 2px solid var(--accent); border-right-color: transparent; border-radius: 50%; animation: spin .8s linear infinite; vertical-align: -1px; margin-right: 6px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; } aside { position: static; max-height: 40vh; border-right: none; border-bottom: 1px solid var(--border); } }
+</style>
+</head>
+<body>
+<header>
+  <div class="chip" title="Sidebet"></div>
+  <div class="brand">sidebet <small id="project"></small></div>
+  <nav>
+    <button type="button" data-view="runs" class="active">Runs</button>
+    <button type="button" data-view="odds">Odds</button>
+    <button type="button" data-view="memory">Memory</button>
+  </nav>
+  <div class="spacer"></div>
+  <div class="live" id="live"><span class="dot"></span><span id="liveText">idle</span></div>
+</header>
+<main id="main">
+  <aside id="list"></aside>
+  <section class="detail" id="detail"><div class="empty">Select a run</div></section>
+</main>
+<script>
+(() => {
+  const $ = (sel, el = document) => el.querySelector(sel)
+  const h = (tag, attrs = {}, ...kids) => {
+    const el = document.createElement(tag)
+    for (const [k, v] of Object.entries(attrs)) {
+      if (k === 'class') el.className = v
+      else if (k === 'html') el.innerHTML = v
+      else if (k.startsWith('on')) el.addEventListener(k.slice(2), v)
+      else if (v !== undefined && v !== null) el.setAttribute(k, v)
+    }
+    for (const kid of kids.flat()) if (kid !== null && kid !== undefined) el.append(kid.nodeType ? kid : document.createTextNode(String(kid)))
+    return el
+  }
+  const fmtDur = (ms) => ms == null ? '–' : ms < 1000 ? `${Math.round(ms)}ms` : ms < 10000 ? `${(ms / 1000).toFixed(1)}s` : ms < 60000 ? `${Math.round(ms / 1000)}s` : `${Math.floor(ms / 60000)}m ${Math.round((ms % 60000) / 1000)}s`
+  const fmtTok = (n) => n == null ? '–' : n.toLocaleString('en-US')
+  const fmtCost = (c) => c == null ? 'not reported' : c < 0.01 ? `$${c.toFixed(4)}` : `$${c.toFixed(2)}`
+  const ago = (iso) => { const s = Math.max(0, (Date.now() - new Date(iso)) / 1000); return s < 60 ? `${Math.round(s)}s ago` : s < 3600 ? `${Math.floor(s / 60)}m ago` : s < 86400 ? `${Math.floor(s / 3600)}h ago` : `${Math.floor(s / 86400)}d ago` }
+  const pill = (s) => h('span', { class: `pill ${s}` }, s)
+  const modelRef = (a) => `${a.provider}/${a.model}`
+  const testText = (a) => { const t = a.tests?.[0]; if (!t) return 'not run'; if (t.status === 'skipped') return `skipped${t.note ? ` (${t.note})` : ''}`; return `${t.status}${t.passed != null ? ` (${t.passed} passed${t.failed ? `, ${t.failed} failed` : ''})` : ''}` }
+
+  const state = { view: 'runs', runs: [], selected: null, detail: null, tab: 'diff', attempt: 0, timer: null, memoryQuery: '' }
+  const api = async (p) => { const r = await fetch(p, { cache: 'no-store' }); if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || r.statusText); return r.json() }
+
+  // ---------- runs list ----------
+  const renderList = () => {
+    const list = $('#list')
+    list.replaceChildren(...state.runs.map((d) => {
+      const r = d.run
+      const el = h('div', { class: `run${state.selected === r.id ? ' selected' : ''}`, onclick: () => select(r.id) },
+        h('div', { class: 'top' }, r.status === 'running' ? h('span', { class: 'spin' }) : null, pill(r.status), h('span', {}, r.kind), h('span', { class: 'dim mono' }, r.id), h('span', { class: 'spacer' }), h('span', {}, ago(r.createdAt))),
+        h('div', { class: 'task' }, r.task),
+        h('div', { class: 'models' }, ...d.attempts.map((a, i) => h('span', { class: `lane${i}` }, `${a.attempt.label} ${a.attempt.model}${i < d.attempts.length - 1 ? '  ' : ''}`))),
+      )
+      return el
+    }))
+    if (state.runs.length === 0) list.replaceChildren(h('div', { class: 'empty' }, 'No runs yet. Try: sidebet compare "<task>"'))
+  }
+
+  const select = async (id) => {
+    state.selected = id
+    state.attempt = 0
+    renderList()
+    try { state.detail = await api(`/api/runs/${encodeURIComponent(id)}`); renderDetail() }
+    catch (e) { $('#detail').replaceChildren(h('div', { class: 'empty' }, String(e.message))) }
+  }
+
+  // ---------- metrics ----------
+  const rows = [
+    ['Status', (a) => a.attempt.status],
+    ['Total time', (a) => fmtDur(a.attempt.durationMs), (a) => a.attempt.durationMs, 'lower'],
+    ['Agent time', (a) => fmtDur(a.usage?.agentDurationMs), (a) => a.usage?.agentDurationMs, 'lower'],
+    ['Time to first token', (a) => fmtDur(a.usage?.timeToFirstTokenMs), (a) => a.usage?.timeToFirstTokenMs, 'lower'],
+    ['Time to first edit', (a) => fmtDur(a.usage?.timeToFirstEditMs), (a) => a.usage?.timeToFirstEditMs, 'lower'],
+    ['Turns', (a) => a.usage ? String(a.usage.turns) : '–'],
+    ['Tool calls', (a) => a.usage ? `${a.usage.toolCalls}${Object.keys(a.usage.toolCallsByTool || {}).length ? ` (${Object.entries(a.usage.toolCallsByTool).sort((x, y) => y[1] - x[1]).map(([t, n]) => `${t} ${n}`).join(', ')})` : ''}` : '–'],
+    ['Tool errors / blocked', (a) => a.usage ? `${a.usage.toolErrors} / ${a.usage.toolsDenied}` : '–'],
+    ['Input tokens', (a) => fmtTok(a.usage?.inputTokens), (a) => a.usage?.inputTokens, 'lower'],
+    ['Output tokens', (a) => fmtTok(a.usage?.outputTokens), (a) => a.usage?.outputTokens, 'lower'],
+    ['Cache read / write', (a) => a.usage ? `${fmtTok(a.usage.cacheReadTokens)} / ${fmtTok(a.usage.cacheWriteTokens)}` : '–'],
+    ['Total tokens', (a) => fmtTok(a.usage?.totalTokens), (a) => a.usage?.totalTokens, 'lower'],
+    ['Cost', (a) => fmtCost(a.usage?.costUsd), (a) => a.usage?.costUsd, 'lower'],
+    ['Files changed', (a) => String(a.attempt.changedFiles.length)],
+    ['Lines +/−', (a) => a.attempt.linesAdded == null ? '–' : `+${a.attempt.linesAdded} / −${a.attempt.linesRemoved ?? 0}`],
+    ['Tests', (a) => testText(a)],
+    ['Test time', (a) => fmtDur(a.tests?.find((t) => t.status !== 'skipped')?.durationMs)],
+  ]
+  const metricsTable = (attempts) => {
+    const table = h('table', {}, h('tr', {}, h('th'), ...attempts.map((a, i) => h('th', { class: `lane${i}` }, `${a.attempt.label}  ${modelRef(a.attempt)}`))))
+    for (const [label, value, of, prefer] of rows) {
+      let best = -1
+      if (of && attempts.length > 1) {
+        const nums = attempts.map(of)
+        if (nums.every((n) => n != null) && new Set(nums).size > 1) best = nums.indexOf(prefer === 'lower' ? Math.min(...nums) : Math.max(...nums))
+      }
+      table.append(h('tr', {}, h('td', { class: 'dim' }, label), ...attempts.map((a, i) => h('td', { class: i === best ? 'best' : '' }, value(a)))))
+    }
+    return table
+  }
+
+  // ---------- diff ----------
+  const parseDiff = (patch) => {
+    const files = []
+    let file = null, _hunk = null, oldN = 0, newN = 0
+    for (const line of patch.split('\n')) {
+      if (line.startsWith('diff --git')) { file = { name: line.replace(/^diff --git a\/(.*) b\/.*$/, '$1'), lines: [], add: 0, del: 0 }; files.push(file); continue }
+      if (!file) continue
+      if (/^(index |--- |\+\+\+ |new file|deleted file|similarity|rename|old mode|new mode|Binary)/.test(line)) continue
+      if (line.startsWith('@@')) { const m = /@@ -(\d+)(?:,\d+)? \+(\d+)/.exec(line); oldN = Number(m?.[1] ?? 0); newN = Number(m?.[2] ?? 0); file.lines.push({ kind: 'hunk', text: line }); continue }
+      if (line.startsWith('+')) { file.lines.push({ kind: 'add', n: newN++, text: line.slice(1) }); file.add++ }
+      else if (line.startsWith('-')) { file.lines.push({ kind: 'del', o: oldN++, text: line.slice(1) }); file.del++ }
+      else if (line.startsWith('\\')) continue
+      else { file.lines.push({ kind: 'ctx', o: oldN++, n: newN++, text: line.slice(1) }) }
+    }
+    return files
+  }
+  const renderDiff = (patch) => {
+    if (!patch?.trim()) return h('div', { class: 'muted' }, 'No changes.')
+    return h('div', {}, ...parseDiff(patch).map((f) => {
+      const pre = h('pre', {})
+      for (const l of f.lines) {
+        if (l.kind === 'hunk') pre.append(h('div', { class: 'hunk' }, l.text))
+        else pre.append(h('div', { class: `l ${l.kind}` }, h('span', {}, l.o ?? ''), h('span', {}, l.n ?? ''), h('span', {}, l.text)))
+      }
+      const box = h('div', { class: 'diff' }, h('div', { class: 'file', onclick: () => { pre.hidden = !pre.hidden } }, h('span', { class: 'mono' }, f.name), h('span', {}, h('span', { class: 'success' }, `+${f.add}`), ' ', h('span', { class: 'error' }, `−${f.del}`))), pre)
+      return box
+    }))
+  }
+
+  // ---------- detail ----------
+  const renderDetail = () => {
+    const d = state.detail
+    if (!d) return
+    const r = d.run
+    const root = $('#detail')
+    const preferredId = [...d.reviews].reverse().find((x) => x.preferredAttemptId)?.preferredAttemptId
+    const bet = d.bets?.at?.(-1) ?? d.bets?.[d.bets.length - 1]
+    const kids = []
+    kids.push(h('h1', {}, r.task))
+    kids.push(h('div', { class: 'meta' },
+      h('span', {}, pill(r.status)), h('span', {}, h('b', {}, r.kind)), h('span', { class: 'mono' }, r.id),
+      h('span', {}, 'created ', h('b', {}, new Date(r.createdAt).toLocaleString())),
+      r.completedAt ? h('span', {}, 'took ', h('b', {}, fmtDur(new Date(r.completedAt) - new Date(r.createdAt)))) : null,
+      r.readonly ? h('span', { class: 'warning' }, 'read-only') : null,
+      r.baseCommit ? h('span', {}, 'base ', h('b', { class: 'mono' }, r.baseCommit.slice(0, 10))) : null,
+      h('span', {}, 'policy ', h('b', { class: 'mono' }, r.policyVersion)), h('span', {}, 'config ', h('b', { class: 'mono' }, r.configVersion)),
+      r.contextMode === 'original' ? h('span', { class: 'info' }, 'replayed original context') : null,
+      r.parentRunId ? h('span', {}, 'rerun of ', h('b', { class: 'mono' }, r.parentRunId)) : null,
+    ))
+    kids.push(h('h2', {}, 'Attempts'))
+    kids.push(h('div', { class: 'cards' }, ...d.attempts.map((a, i) => h('div', { class: `card b-lane${i}` },
+      h('div', { class: 'title' }, h('b', { class: `lane${i}` }, `${a.attempt.label}  ${modelRef(a.attempt)}`), h('span', {}, pill(a.attempt.status), preferredId === a.attempt.id ? h('span', { class: 'gold' }, ' ★ preferred') : null)),
+      h('div', { class: 'grid' },
+        h('span', {}, 'files'), h('span', {}, `${a.attempt.changedFiles.length}${a.attempt.linesAdded != null ? `  (+${a.attempt.linesAdded} / −${a.attempt.linesRemoved ?? 0})` : ''}`),
+        h('span', {}, 'tests'), h('span', { class: (a.tests?.[0]?.status === 'passed') ? 'success' : (a.tests?.[0]?.status === 'failed') ? 'error' : 'muted' }, testText(a)),
+        h('span', {}, 'time'), h('span', {}, fmtDur(a.attempt.durationMs)),
+        h('span', {}, 'tokens'), h('span', {}, a.usage ? `${fmtTok(a.usage.totalTokens)}  ` : '–', a.usage ? h('span', { class: 'dim' }, `↑${fmtTok(a.usage.inputTokens + a.usage.cacheReadTokens)} ↓${fmtTok(a.usage.outputTokens)}`) : null),
+        h('span', {}, 'cost'), h('span', {}, fmtCost(a.usage?.costUsd)),
+        a.attempt.error ? h('span', {}, 'error') : null, a.attempt.error ? h('span', { class: 'error' }, a.attempt.error) : null,
+      ),
+    ))))
+    if (bet || d.reviews.length) {
+      kids.push(h('h2', {}, 'Review'))
+      const box = h('div', { class: 'meta' })
+      if (bet) { const hit = preferredId ? (d.attempts.find((a) => a.attempt.id === preferredId)?.attempt.label === bet.pick) : null; box.append(h('span', {}, 'your call ', h('b', {}, bet.pick), ' ', hit == null ? h('span', { class: 'dim' }, '(unresolved)') : hit ? h('span', { class: 'gold' }, '◉ matched') : h('span', { class: 'dim' }, '◎ did not match'))) }
+      for (const rv of d.reviews) box.append(h('span', {}, rv.accepted ? h('b', { class: 'success' }, 'accepted') : h('b', { class: 'warning' }, 'not accepted'), rv.preferredAttemptId ? ` · preferred ${d.attempts.find((a) => a.attempt.id === rv.preferredAttemptId)?.attempt.label ?? '?'}` : '', rv.reason ? ` · ${rv.reason}` : '', rv.notes ? ` · ${rv.notes}` : ''))
+      for (const ap of d.applications) box.append(h('span', { class: 'dim' }, `applied ${ap.resultRef} · backup ${ap.backupRef}`))
+      kids.push(box)
+    }
+    kids.push(h('h2', {}, 'Metrics'))
+    kids.push(metricsTable(d.attempts))
+    kids.push(h('div', { class: 'caveat' }, '◂ marks the better value for that single metric; nothing is combined into a score. Cost is only what the runtime reported.'))
+
+    // tabs
+    const tabs = ['diff', 'summary', 'tools', 'tests', 'context']
+    kids.push(h('div', { class: 'tabs' },
+      ...d.attempts.map((a, i) => h('button', { class: state.attempt === i ? `active` : '', onclick: () => { state.attempt = i; renderDetail() } }, h('span', { class: `lane${i}` }, a.attempt.label), ` ${a.attempt.model}`)),
+      h('span', { style: 'width:12px' }),
+      ...tabs.map((t) => h('button', { class: state.tab === t ? 'active' : '', onclick: () => { state.tab = t; renderDetail() } }, t)),
+    ))
+    const a = d.attempts[state.attempt]
+    if (a) {
+      if (state.tab === 'diff') kids.push(renderDiff(a.diff?.content))
+      if (state.tab === 'summary') kids.push(h('pre', { class: 'block' }, a.attempt.summary || '(no summary)'))
+      if (state.tab === 'tools') {
+        const ev = h('div', { class: 'events' })
+        for (const e of a.toolEvents) ev.append(h('span', { class: 'dim mono' }, new Date(e.startedAt).toLocaleTimeString()), h('span', { class: e.status === 'denied' ? 'error' : e.status === 'error' ? 'warning' : 'success' }, e.status), h('span', { class: 'mono' }, `${e.tool} ${e.summary}${e.reason ? ` — ${e.reason}` : ''}`), h('span', { class: 'dim' }, fmtDur(e.durationMs)))
+        kids.push(a.toolEvents.length ? ev : h('div', { class: 'muted' }, 'No tool calls.'))
+      }
+      if (state.tab === 'tests') {
+        const t = a.tests?.[0]
+        kids.push(t ? h('div', {}, h('div', { class: 'meta' }, h('span', {}, h('b', { class: 'mono' }, t.command || '(none)')), h('span', {}, pill(t.status)), h('span', {}, 'exit ', h('b', {}, String(t.exitCode ?? '–'))), h('span', {}, fmtDur(t.durationMs))), h('pre', { class: 'block' }, t.outputTail || t.note || '')) : h('div', { class: 'muted' }, 'Tests were not run.'))
+        const setup = a.logs?.find((l) => l.name === 'setup.log')
+        if (setup) kids.push(h('details', {}, h('summary', {}, 'setup.log'), h('pre', { class: 'block' }, setup.content)))
+      }
+      if (state.tab === 'context') {
+        const s = d.snapshot
+        if (!s) kids.push(h('div', { class: 'muted' }, 'Snapshot missing.'))
+        else {
+          kids.push(h('div', { class: 'meta' }, h('span', {}, 'snapshot ', h('b', { class: 'mono' }, s.id)), h('span', {}, 'injected ', h('b', {}, `${fmtTok(s.injectedTokens)} tokens`)), h('span', {}, 'native ', h('b', {}, `${fmtTok(s.nativeTokens)} tokens`)), h('span', {}, 'budget ', h('b', {}, fmtTok(s.budgetTokens)))))
+          const items = h('div', { class: 'items' })
+          for (const it of s.items) items.append(h('div', { class: 'it' }, h('span', { class: it.delivery === 'omitted' ? 'dim' : it.delivery === 'native' ? 'info' : 'success' }, it.delivery), h('span', { class: 'dim' }, it.kind), h('span', {}, h('span', { class: 'mono' }, it.source), ' ', h('span', { class: 'dim' }, `~${it.tokens} tokens · ${it.reason}`))))
+          kids.push(items)
+          kids.push(h('details', {}, h('summary', {}, 'Exact text appended to the system prompt (secrets redacted)'), h('pre', { class: 'block' }, s.rendered || '(empty)')))
+        }
+      }
+    }
+    root.replaceChildren(...kids)
+  }
+
+  // ---------- odds ----------
+  const meter = (n, d) => d === 0 ? h('span', { class: 'dim' }, '–') : h('span', {}, h('span', { class: 'meter' }, h('i', { style: `width:${Math.round((n / d) * 100)}%` })), `${n}/${d} (${Math.round((n / d) * 100)}%)`)
+  const renderOdds = async () => {
+    const o = await api('/api/odds')
+    const root = $('#detail')
+    const kids = [h('h1', {}, 'Odds'), h('div', { class: 'meta' }, h('span', {}, h('b', {}, o.generatedFromRuns), ' finished runs'), h('span', {}, h('b', {}, o.compareRuns), ' compare'), h('span', {}, h('b', {}, o.reviewedRuns), ' with a recorded preference'))]
+    if (o.models.length) {
+      const t = h('table', {}, h('tr', {}, ...['Model', 'Runs', 'Tests passed (objective)', 'Preferred (human)', 'Accepted', 'Median time', 'Median tokens', 'Median cost'].map((x) => h('th', {}, x))))
+      for (const m of o.models) t.append(h('tr', {}, h('td', { class: 'mono' }, m.model), h('td', {}, m.attempts), h('td', {}, meter(m.testsPassed, m.testsRun)), h('td', {}, meter(m.preferred, m.appearances)), h('td', {}, m.reviewsPicked ? `${m.reviewsAccepted}/${m.reviewsPicked}` : '–'), h('td', {}, fmtDur(m.medianDurationMs)), h('td', {}, fmtTok(m.medianTotalTokens)), h('td', {}, m.medianCostUsd != null ? `${fmtCost(m.medianCostUsd)} (n=${m.costReported})` : '–')))
+      kids.push(h('h2', {}, 'By model'), t)
+      if (o.headToHead.length) {
+        kids.push(h('h2', {}, 'Head-to-head (same task, both attempted)'))
+        for (const x of o.headToHead) kids.push(h('div', { class: 'caveat' }, h('span', { class: 'mono' }, `${x.a} vs ${x.b}`), `: ${x.runs} runs · preferred ${x.aPreferred}–${x.bPreferred}`, x.bothRanTests ? ` · tests: ${x.bothPassed} both passed, ${x.aOnlyPassed} only first, ${x.bOnlyPassed} only second, ${x.bothFailed} both failed (n=${x.bothRanTests})` : ''))
+      }
+      if (o.calls?.total) kids.push(h('h2', {}, 'Your calls'), h('div', { class: 'chips' }, h('span', {}, ...o.calls.outcomes.slice(-20).map((c) => h('span', { class: c === 'hit' ? 'gold' : 'dim' }, c === 'hit' ? '◉' : '◎'))), ` ${o.calls.hits}/${o.calls.total} matched your later preference`, o.calls.streak >= 2 ? h('span', { class: 'dim' }, ` · ${o.calls.streak} in a row`) : null), h('div', { class: 'caveat' }, 'A call is a bet placed before reviewing; it measures your prediction, not the models.'))
+    }
+    kids.push(h('h2', {}, 'Caveats'), ...o.caveats.map((c) => h('div', { class: 'caveat' }, `• ${c}`)))
+    root.replaceChildren(...kids)
+  }
+
+  // ---------- memory ----------
+  const renderMemory = async () => {
+    const all = await api('/api/memory')
+    const root = $('#detail')
+    const list = h('div', {})
+    const draw = () => {
+      const q = state.memoryQuery.toLowerCase()
+      const shown = all.filter((m) => !q || m.text.toLowerCase().includes(q) || m.tags.join(' ').toLowerCase().includes(q))
+      list.replaceChildren(...shown.map((m) => h('div', { class: 'mem' }, h('div', {}, m.text), h('div', { class: 'tags' }, `${m.scope} · ${m.source} · ${ago(m.createdAt)} · `, h('span', { class: 'mono' }, m.id), m.tags.length ? ` · ${m.tags.join(', ')}` : ''))))
+      if (!shown.length) list.replaceChildren(h('div', { class: 'muted' }, all.length ? 'No matches.' : 'No memories yet. Add one with: sidebet memory add "…"'))
+    }
+    root.replaceChildren(h('h1', {}, 'Memory'), h('div', { class: 'meta' }, h('span', {}, h('b', {}, all.length), ' entries in scope for this project')), h('div', { style: 'margin:14px 0' }, h('input', { type: 'search', placeholder: 'Filter…', value: state.memoryQuery, oninput: (e) => { state.memoryQuery = e.target.value; draw() } })), list)
+    draw()
+  }
+
+  // ---------- views & polling ----------
+  const setView = (v) => {
+    state.view = v
+    for (const b of document.querySelectorAll('nav button')) b.classList.toggle('active', b.dataset.view === v)
+    $('#main').classList.toggle('single', v !== 'runs')
+    $('#list').hidden = v !== 'runs'
+    if (v === 'runs') { if (state.detail) renderDetail(); else $('#detail').replaceChildren(h('div', { class: 'empty' }, 'Select a run')) }
+    if (v === 'odds') renderOdds().catch(showErr)
+    if (v === 'memory') renderMemory().catch(showErr)
+  }
+  const showErr = (e) => $('#detail').replaceChildren(h('div', { class: 'empty error' }, String(e.message || e)))
+  for (const b of document.querySelectorAll('nav button')) b.addEventListener('click', () => setView(b.dataset.view))
+
+  const refresh = async () => {
+    try {
+      state.runs = await api('/api/runs')
+      if (state.view === 'runs') renderList()
+      const running = state.runs.some((d) => d.run.status === 'running')
+      $('#live').classList.toggle('on', running)
+      $('#liveText').textContent = running ? 'live' : 'idle'
+      if (running && state.selected && state.view === 'runs') {
+        const sel = state.runs.find((d) => d.run.id === state.selected)
+        if (sel?.run.status === 'running' || state.detail?.run.status === 'running') { state.detail = await api(`/api/runs/${encodeURIComponent(state.selected)}`); renderDetail() }
+      }
+      clearTimeout(state.timer)
+      state.timer = setTimeout(refresh, running ? 2000 : 8000)
+    } catch (e) { $('#liveText').textContent = 'disconnected'; $('#live').classList.remove('on'); state.timer = setTimeout(refresh, 4000) }
+  }
+  api('/api/project').then((p) => { $('#project').textContent = `${p.name} · v${p.version}`; document.title = `Sidebet · ${p.name}` }).catch(() => {})
+  refresh().then(() => { if (state.runs[0] && !state.selected) select(state.runs[0].run.id) })
+})()
+</script>
+</body>
+</html>

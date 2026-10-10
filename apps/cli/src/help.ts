@@ -29,6 +29,7 @@ Do work
   rerun <run-id>               --original-context (default) | --current-context | --models | --dry-run
   odds                         Your own model history (--category c, --by-category)
   bet <A|B>                    Record which result you expect to prefer, before reviewing
+  ui                           Open a local web view of runs, odds and memory (--port n, --no-open)
 
 Context, memory, policy
   context [--task ".."]        What the agent would receive now

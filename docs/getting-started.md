@@ -158,6 +158,8 @@ sidebet odds
 
 It shows, per model, how often tests passed (objective), how often you preferred it (your judgement), and typical time, tokens, and cost. Sample sizes are always shown. With three runs the numbers are anecdotes; with thirty they start to mean something.
 
+Prefer a browser? `sidebet ui` opens the same information as a local web page: every run, both attempts side by side, diffs, and odds.
+
 ## What to do next
 
 - Put project conventions in `.sidebet/rules/*.md` (always injected) and one-off facts in `sidebet memory add` (included when relevant). See [configuration.md](configuration.md).

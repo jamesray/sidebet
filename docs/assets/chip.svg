@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Sidebet chip">
+  <defs>
+    <mask id="notches">
+      <rect width="120" height="120" fill="#fff"/>
+      <g fill="#000">
+        <rect x="55" y="2" width="10" height="16" rx="2"/>
+        <rect x="55" y="102" width="10" height="16" rx="2"/>
+        <rect x="2" y="55" width="16" height="10" rx="2"/>
+        <rect x="102" y="55" width="16" height="10" rx="2"/>
+        <g transform="rotate(45 60 60)">
+          <rect x="55" y="2" width="10" height="16" rx="2"/>
+          <rect x="55" y="102" width="10" height="16" rx="2"/>
+          <rect x="2" y="55" width="16" height="10" rx="2"/>
+          <rect x="102" y="55" width="16" height="10" rx="2"/>
+        </g>
+      </g>
+    </mask>
+  </defs>
+  <circle cx="60" cy="60" r="58" fill="#efe9dc"/>
+  <circle cx="60" cy="60" r="58" fill="#d9453a" mask="url(#notches)"/>
+  <circle cx="60" cy="60" r="40" fill="none" stroke="#efe9dc" stroke-width="2.5" stroke-dasharray="6 5"/>
+  <circle cx="60" cy="60" r="33" fill="#e8c467"/>
+  <circle cx="60" cy="60" r="33" fill="none" stroke="#b8902e" stroke-width="1.5"/>
+  <path d="M43 60c0-9.4 7.6-17 17-17s17 7.6 17 17-7.6 17-17 17-17-7.6-17-17z" fill="#f3d98a"/>
+  <path d="M60 48l3.1 8.3H72l-7.2 5.3 2.8 8.4L60 65l-7.6 5 2.8-8.4L48 56.3h8.9z" fill="#b8902e"/>
+</svg>

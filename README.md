@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/assets/chip.svg" width="88" alt="The Sidebet chip">
+</p>
+
 # Sidebet
 
 **Same context. Different models. Better decisions.**
@@ -14,6 +18,7 @@ sidebet run "Fix the failing tests"
 sidebet compare "Refactor the search handler"
 sidebet review
 sidebet odds
+sidebet ui
 ```
 
 `sidebet init` reuses your existing Pi login and `AGENTS.md`; there is nothing to re-enter. If Pi works on your machine, Sidebet works.
@@ -53,6 +58,7 @@ Sidebet is built on the same terminal toolkit as Pi (`@earendil-works/pi-tui`), 
 | `sidebet runs`, `rerun` | Full history; rerun with the **original** or **current** context, stated explicitly. |
 | `sidebet odds` | Your own evidence about which model works for you. Sample sizes always shown. Tests and preference never blended. |
 | `sidebet bet A` | Record which result you expect to prefer before reviewing; `odds` tracks how often your calls match. |
+| `sidebet ui` | A local web view of every run: attempts side by side, metrics, diffs, tool calls, tests, the exact context, odds and memory. Read-only, bound to 127.0.0.1, zero extra dependencies. |
 | `sidebet context`, `memory` | See exactly what the agent receives; persistent project/global memory with FTS5 search. |
 | `sidebet policy check`, `doctor` | Why a model or tool was denied; what is truly enforced and what is not. |
 

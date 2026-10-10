@@ -21,6 +21,7 @@ const commands: Record<string, () => Promise<Handler>> = {
   models: async () => (await import('./commands/models.js')).modelsCommand,
   clean: async () => (await import('./commands/clean.js')).cleanCommand,
   bet: async () => (await import('./commands/bet.js')).betCommand,
+  ui: async () => (await import('./commands/ui.js')).uiCommand,
 }
 
 /** Pull global flags out of argv wherever they appear. */
