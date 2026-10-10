@@ -1,6 +1,6 @@
 # Sidebet <img src="docs/assets/chip-red.svg" width="36" alt="The Sidebet chip">
 
-**Same context. Different models. Better decisions.**
+**Same context. Different models. Better decisions.** · [sidebet.sh](https://sidebet.sh)
 
 Sidebet is an open-source developer harness built on [Pi](https://github.com/badlogic/pi-mono). It keeps your rules, memory, and tooling consistent across AI coding sessions while making it easy to run different models against the same task, compare their results, and learn which models work best for your projects.
 

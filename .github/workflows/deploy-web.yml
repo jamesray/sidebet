@@ -4,7 +4,7 @@ name: Deploy website
 # main -> production deployment; pull requests -> preview deployment with the URL as a PR comment.
 #
 # Required repository secrets:  CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_API_TOKEN (Account > Cloudflare Pages > Edit)
-# Optional repository variables: CF_PAGES_PROJECT (default "sidebet"), SITE_URL (e.g. https://sidebet.dev)
+# Optional repository variables: CF_PAGES_PROJECT (default "sidebet"), SITE_URL (overrides https://sidebet.sh in meta tags)
 
 on:
   push:
@@ -41,7 +41,7 @@ jobs:
           rm -f dist-web/README.md dist-web/assets/og.svg
           if [ -n "$SITE_URL" ]; then
             site="${SITE_URL%/}"
-            sed -i "s#https://sidebet.pages.dev#${site}#g" dist-web/index.html
+            sed -i "s#https://sidebet.sh#${site}#g" dist-web/index.html
             echo "Rewrote canonical/OG URLs to ${site}"
           fi
 
