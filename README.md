@@ -20,7 +20,7 @@ sidebet odds
 
 ### Install (from source)
 
-Requires Node 22.13+ (24 recommended), pnpm, Git, and a working [Pi](https://github.com/badlogic/pi-mono) login.
+Requires Node 22.19+ (24 recommended), pnpm, Git, and a working [Pi](https://github.com/badlogic/pi-mono) login.
 
 ```bash
 git clone <this repo> sidebet && cd sidebet
@@ -106,7 +106,7 @@ Sidebet's central record is a `SidebetRun` with one or more `SidebetAttempt`s; i
 - Compare worktrees contain tracked and untracked **non-ignored** files only. Ignored files (`.env`, build output) are absent; `node_modules` is symlinked, and `compare.setup` can run a command per worktree.
 - Token counts in context reports are estimates (about 4 characters per token). Usage and cost in run records come from Pi as reported; cost is shown only if Pi reports one (subscription logins often report none).
 - A rerun reproduces the inputs, not the outputs.
-- Built and tested against Pi 0.73.x. Pi's SDK is pre-1.0; the version is pinned.
+- Built and tested against Pi 1.1.x. Pi's SDK is pre-1.0; the version is pinned.
 - Only macOS and Linux paths were exercised. Windows is untested.
 - Requires Node's built-in `node:sqlite`, which Node still labels experimental.
 - No paid model calls are made by the automated tests; the Pi adapter is tested against Pi's real SDK using its faux provider. A one-call real-provider test is available behind `SIDEBET_INTEGRATION=1`.

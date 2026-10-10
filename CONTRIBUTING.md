@@ -12,7 +12,7 @@ pnpm typecheck
 pnpm test         # builds, then runs vitest (no paid model calls)
 ```
 
-Requires Node 22.13+, pnpm 10, and Git. You do not need Pi credentials to run the tests.
+Requires Node 22.19+, pnpm 10, and Git. You do not need Pi credentials to run the tests.
 
 ## Layout
 

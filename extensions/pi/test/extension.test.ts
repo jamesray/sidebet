@@ -2,7 +2,7 @@ import { mkdtemp } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { DefaultResourceLoader, SettingsManager } from '@mariozechner/pi-coding-agent'
+import { DefaultResourceLoader, SettingsManager } from '@earendil-works/pi-coding-agent'
 import { describe, expect, it } from 'vitest'
 import sidebetExtension, { splitArgs } from '../index.js'
 

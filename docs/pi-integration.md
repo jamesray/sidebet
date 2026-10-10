@@ -1,6 +1,6 @@
 # Pi integration
 
-Sidebet does not fork Pi. It uses Pi's public SDK (`@mariozechner/pi-coding-agent`, pinned at 0.73.1).
+Sidebet does not fork Pi. It uses Pi's public SDK (`@earendil-works/pi-coding-agent`, pinned at 1.1.0).
 
 ## What the adapter uses
 

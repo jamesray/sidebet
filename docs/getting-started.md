@@ -13,7 +13,7 @@ A chat assistant answers questions. A *coding agent* is a model wired to tools: 
 Pi needs an account with at least one model provider (Anthropic, OpenAI, GitHub Copilot, and others are supported). Many providers offer a subscription or a pay-as-you-go API key.
 
 ```bash
-npm install -g @mariozechner/pi-coding-agent
+npm install -g @earendil-works/pi-coding-agent
 pi
 ```
 
@@ -23,7 +23,7 @@ For a comparison you need **two** models. They can be from the same provider (fo
 
 ## Step 2: Install Sidebet
 
-Sidebet needs Node.js 22.13 or newer, pnpm, and Git.
+Sidebet needs Node.js 22.19 or newer, pnpm, and Git.
 
 ```bash
 git clone https://github.com/jamesray/sidebet.git

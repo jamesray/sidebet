@@ -2,16 +2,16 @@ import { existsSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { isAbsolute, join, relative, resolve } from 'node:path'
 import {
-  AuthStorage,
   createAgentSession,
   DefaultResourceLoader,
   type ExtensionFactory,
   getAgentDir,
-  ModelRegistry,
+  type InlineExtension,
+  ModelRuntime,
   SessionManager,
   SettingsManager,
   VERSION,
-} from '@mariozechner/pi-coding-agent'
+} from '@earendil-works/pi-coding-agent'
 import {
   type AgentRuntime,
   type AttemptOutcome,
@@ -27,13 +27,14 @@ import {
 export interface PiRuntimeOptions {
   /** Defaults to Pi's own agent dir (~/.pi/agent or PI_CODING_AGENT_DIR). */
   agentDir?: string
-  authStorage?: AuthStorage
-  modelRegistry?: ModelRegistry
+  /** Pi model runtime (credentials + model catalog). Defaults to Pi's own files under agentDir. */
+  modelRuntime?: ModelRuntime | Promise<ModelRuntime>
   /** Additional inline extensions. Intended for tests. */
   extensionFactories?: ExtensionFactory[]
 }
 
 const DEFAULT_TOOLS = ['read', 'bash', 'edit', 'write']
+const POLICY_EXTENSION = 'sidebet-policy'
 
 const textOf = (content: unknown): string => {
   if (!Array.isArray(content)) return typeof content === 'string' ? content : ''
@@ -57,22 +58,29 @@ const makeRelative =
 export class PiRuntime implements AgentRuntime {
   readonly id = 'pi'
   private readonly agentDir: string
-  private readonly authStorage: AuthStorage
-  private readonly modelRegistry: ModelRegistry
+  private runtimePromise: Promise<ModelRuntime> | undefined
 
   constructor(private readonly options: PiRuntimeOptions = {}) {
     this.agentDir = options.agentDir ?? getAgentDir()
-    this.authStorage = options.authStorage ?? AuthStorage.create()
-    this.modelRegistry = options.modelRegistry ?? ModelRegistry.create(this.authStorage)
+  }
+
+  /** Created once per process. Reads Pi's auth.json, models.json and its model catalog. */
+  private modelRuntime(): Promise<ModelRuntime> {
+    this.runtimePromise ??= this.options.modelRuntime
+      ? Promise.resolve(this.options.modelRuntime)
+      : ModelRuntime.create({ authPath: join(this.agentDir, 'auth.json') })
+    return this.runtimePromise
   }
 
   async detect(cwd: string = process.cwd()): Promise<RuntimeInfo> {
     const notes: string[] = []
     const problems: string[] = []
-    this.modelRegistry.refresh()
-    const err = this.modelRegistry.getError()
+    const runtime = await this.modelRuntime()
+    const err = runtime.getError()
     if (err) problems.push(`models.json: ${err}`)
-    const models = this.modelRegistry.getAvailable().map((m) => ({
+    // Resolves credentials and provider-side model lists (e.g. Copilot's allowed model ids).
+    const available = await runtime.getAvailable()
+    const models = available.map((m) => ({
       provider: String(m.provider),
       id: m.id,
       name: m.name,
@@ -120,7 +128,8 @@ export class PiRuntime implements AgentRuntime {
   async execute(req: AttemptRequest): Promise<AttemptOutcome> {
     // Tells the Sidebet Pi extension (if installed) not to inject context a second time.
     process.env.SIDEBET_SESSION = '1'
-    const model = this.modelRegistry.find(req.model.provider, req.model.id)
+    const modelRuntime = await this.modelRuntime()
+    const model = modelRuntime.getModel(req.model.provider, req.model.id)
     if (!model) {
       return {
         status: 'failed',
@@ -137,7 +146,7 @@ export class PiRuntime implements AgentRuntime {
     const denied = new Set<string>()
     const approved = new Set<string>()
     const rel = makeRelative(req.cwd)
-    const enforcement: ExtensionFactory = (pi) => {
+    const enforcementFactory: ExtensionFactory = (pi) => {
       pi.on('tool_call', async (event) => {
         const input = (event.input ?? {}) as Record<string, unknown>
         const call = { tool: event.toolName, input }
@@ -170,6 +179,11 @@ export class PiRuntime implements AgentRuntime {
       })
     }
 
+    const enforcement: InlineExtension = {
+      name: POLICY_EXTENSION,
+      factory: enforcementFactory,
+      hidden: true,
+    }
     const settingsManager = SettingsManager.create(req.cwd, this.agentDir)
     const loader = new DefaultResourceLoader({
       cwd: req.cwd,
@@ -186,8 +200,7 @@ export class PiRuntime implements AgentRuntime {
       cwd: req.cwd,
       agentDir: this.agentDir,
       model,
-      authStorage: this.authStorage,
-      modelRegistry: this.modelRegistry,
+      modelRuntime,
       resourceLoader: loader,
       settingsManager,
       sessionManager: req.persistSession
@@ -197,8 +210,9 @@ export class PiRuntime implements AgentRuntime {
     })
 
     // Fail closed: if the enforcement hook did not load, do not run the agent without it.
-    const hookErrors = extensionsResult.errors.filter((e) => e.path.startsWith('<inline:1>'))
-    const hookLoaded = extensionsResult.extensions.some((e) => e.path === '<inline:1>')
+    const hookPath = `<inline:${POLICY_EXTENSION}>`
+    const hookErrors = extensionsResult.errors.filter((e) => e.path === hookPath)
+    const hookLoaded = extensionsResult.extensions.some((e) => e.path === hookPath)
     if (hookErrors.length > 0 || !hookLoaded) {
       session.dispose()
       return {

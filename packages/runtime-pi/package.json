@@ -17,9 +17,9 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@sidebet/core": "workspace:*",
-    "@mariozechner/pi-coding-agent": "0.73.1",
-    "@mariozechner/pi-ai": "*"
+    "@earendil-works/pi-ai": "1.1.0",
+    "@earendil-works/pi-coding-agent": "1.1.0",
+    "@sidebet/core": "workspace:*"
   },
   "devDependencies": {
     "@sidebet/config": "workspace:*"

@@ -1,4 +1,4 @@
-import type { ExtensionAPI } from '@mariozechner/pi-coding-agent'
+import type { ExtensionAPI } from '@earendil-works/pi-coding-agent'
 
 /**
  * Thin Pi extension. All logic lives in the `sidebet` CLI; this file only maps Pi commands to it.

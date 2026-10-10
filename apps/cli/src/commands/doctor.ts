@@ -30,8 +30,13 @@ export const doctorCommand = async (ctx: CliContext, args: string[]): Promise<nu
     void checks.push({ level, title, detail })
 
   const [maj = 0, min = 0] = process.versions.node.split('.').map(Number)
-  if (maj > 22 || (maj === 22 && min >= 13)) add('ok', `Node ${process.versions.node}`)
-  else add('fail', `Node ${process.versions.node}`, 'Sidebet needs Node 22.13+ (built-in SQLite).')
+  if (maj > 22 || (maj === 22 && min >= 19)) add('ok', `Node ${process.versions.node}`)
+  else
+    add(
+      'fail',
+      `Node ${process.versions.node}`,
+      'Sidebet needs Node 22.19+ (built-in SQLite; required by Pi 1.x).',
+    )
 
   if (await isGitAvailable())
     add(

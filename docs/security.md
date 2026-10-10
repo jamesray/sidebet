@@ -25,16 +25,7 @@ Sidebet separates **instructions to a model** from **enforcement**. Instructions
 
 ## Upstream advisories
 
-`pnpm audit` reports advisories in Pi and its dependencies that have no patched release yet. None of the affected code paths run inside Sidebet, but they are in the dependency tree:
-
-| Advisory | Where | Why Sidebet is not exposed |
-|---|---|---|
-| Pi: predictable temp extension install paths | `pi install` / `pi -e` | Sidebet never installs Pi packages |
-| Pi: race in `auth.json` writes | Pi's login flow | Sidebet only reads credentials, through Pi's own `AuthStorage` |
-| Pi: XSS in HTML session export | `/export` in Pi's TUI | Sidebet never exports sessions to HTML |
-| `extract-zip` symlink traversal | Pi package installs | Not called by Sidebet |
-
-`basic-ftp` (reachable through `proxy-agent`) is pinned to a fixed version with a pnpm override. Re-check with `pnpm audit` after upgrading Pi.
+Sidebet depends on Pi (`@earendil-works/pi-coding-agent`). `pnpm audit` is clean at the pinned version; re-run it after upgrading Pi, since Pi's own install and export code paths (which Sidebet does not call) have had advisories in the past.
 
 ## Reporting vulnerabilities
 

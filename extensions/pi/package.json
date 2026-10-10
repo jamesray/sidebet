@@ -19,7 +19,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {
-    "@mariozechner/pi-coding-agent": "0.73.1",
+    "@earendil-works/pi-coding-agent": "1.1.0",
     "@sidebet/config": "workspace:*"
   }
 }
