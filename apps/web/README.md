@@ -1,8 +1,8 @@
 # Sidebet marketing site
 
-The public site for Sidebet: what it is, how to use it, and the roadmap. Plain HTML, CSS and
-JavaScript with no build step and no dependencies, so it can be served from anywhere that hosts
-static files.
+The public site for Sidebet at [sidebet.sh](https://sidebet.sh): what it is, how to use it, and
+the roadmap. Plain HTML, CSS and JavaScript with no build step and no dependencies, so it can be
+served from anywhere that hosts static files.
 
 ```
 index.html           the page
@@ -11,6 +11,7 @@ assets/site.js       hero animation, tabs, copy buttons, reveal, interest form
 assets/favicon.svg   the chip
 assets/og.png        social preview (1200x630), generated from assets/og.svg
 _headers             Cloudflare Pages headers (ignored elsewhere)
+_redirects           Cloudflare Pages redirect: www.sidebet.sh -> sidebet.sh
 ```
 
 ## Preview locally
@@ -34,13 +35,19 @@ posted as a comment. It needs two repository secrets and, optionally, two variab
 | `CLOUDFLARE_ACCOUNT_ID` | secret | Cloudflare dashboard → Workers & Pages → Overview, right-hand column |
 | `CLOUDFLARE_API_TOKEN` | secret | A token with **Account → Cloudflare Pages → Edit** (the "Edit Cloudflare Workers" template also works) |
 | `CF_PAGES_PROJECT` | variable | Pages project name; default `sidebet` (the project is created on first deploy if missing) |
-| `SITE_URL` | variable | Public origin, e.g. `https://sidebet.dev`; used to rewrite canonical and Open Graph URLs at deploy time |
+| `SITE_URL` | variable | Only if the public origin is ever not `https://sidebet.sh`; rewrites canonical and Open Graph URLs at deploy time |
 
 Set them with the GitHub CLI (`gh secret set CLOUDFLARE_API_TOKEN`, `gh variable set SITE_URL`)
 or under Settings → Secrets and variables → Actions.
 
-To use a custom domain: Cloudflare dashboard → Workers & Pages → the project → Custom domains.
-If the domain's DNS is already on Cloudflare the record is added for you.
+## Domain
+
+The site lives at `https://sidebet.sh`; the meta tags, Open Graph image and `_redirects` assume
+it. After the first deploy, attach the domain once in the Cloudflare dashboard: Workers & Pages →
+the project → Custom domains → add `sidebet.sh`, then add `www.sidebet.sh` too so the redirect in
+`_redirects` can serve it. With the domain's DNS on Cloudflare the records are created for you;
+otherwise create the CNAMEs it shows you. Turning on SSL/TLS → Edge Certificates → Always Use HTTPS
+for the zone is worth doing as well.
 
 GitHub Pages works too (Settings → Pages → Source: GitHub Actions, then a workflow that uploads
 `apps/web` with `actions/upload-pages-artifact`); all asset paths are relative, so the site
