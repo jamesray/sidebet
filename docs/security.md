@@ -23,6 +23,19 @@ Sidebet separates **instructions to a model** from **enforcement**. Instructions
 - **Local data**: run records (task text, summaries, diffs, redacted context) are stored unencrypted in `~/.sidebet/sidebet.db`. Diffs may contain whatever the agent wrote.
 - Prompts and file contents go to whichever model providers you choose, exactly as with Pi.
 
+## Upstream advisories
+
+`pnpm audit` reports advisories in Pi and its dependencies that have no patched release yet. None of the affected code paths run inside Sidebet, but they are in the dependency tree:
+
+| Advisory | Where | Why Sidebet is not exposed |
+|---|---|---|
+| Pi: predictable temp extension install paths | `pi install` / `pi -e` | Sidebet never installs Pi packages |
+| Pi: race in `auth.json` writes | Pi's login flow | Sidebet only reads credentials, through Pi's own `AuthStorage` |
+| Pi: XSS in HTML session export | `/export` in Pi's TUI | Sidebet never exports sessions to HTML |
+| `extract-zip` symlink traversal | Pi package installs | Not called by Sidebet |
+
+`basic-ftp` (reachable through `proxy-agent`) is pinned to a fixed version with a pnpm override. Re-check with `pnpm audit` after upgrading Pi.
+
 ## Reporting vulnerabilities
 
 Please open a private security advisory on the repository rather than a public issue.

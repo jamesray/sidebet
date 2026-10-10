@@ -24,5 +24,10 @@
     "@sidebet/storage-local": "workspace:*",
     "@sidebet/config": "workspace:*"
   },
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "pnpm": {
+    "overrides": {
+      "basic-ftp": ">=6.2.1"
+    }
+  }
 }
