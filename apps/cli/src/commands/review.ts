@@ -49,6 +49,18 @@ const printReview = (ctx: CliContext, detail: RunDetail): void => {
     const denied = a.toolEvents.filter((e) => e.decision === 'denied')
     for (const d of denied.slice(0, 5))
       ui.out(ui.yellow(`  Blocked: ${d.tool} ${truncate(d.summary, 60)} - ${d.reason ?? ''}`))
+    const setupLog = a.logs.find((l) => l.name === 'setup.log')
+    if (setupLog && (at.status !== 'completed' || a.tests.some((t) => t.status !== 'passed'))) {
+      ui.out(
+        ui.dim(
+          `  Setup output (tail):\n${setupLog.content
+            .split('\n')
+            .slice(-4)
+            .map((l) => `    ${l}`)
+            .join('\n')}`,
+        ),
+      )
+    }
     const failedTests = a.tests.find((t) => t.status === 'failed')
     if (failedTests?.outputTail)
       ui.out(

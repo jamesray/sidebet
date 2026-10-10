@@ -46,7 +46,7 @@ export interface Reporter {
   event(who: { label: string; model: string }, event: RuntimeEvent): void
   phase(who: { label: string; model: string }, message: string): void
   /** Attempt lifecycle, for live displays. */
-  attempt?(who: { label: string; model: string }, status: AttemptStatus): void
+  attempt?(who: { label: string; model: string }, status: AttemptStatus, error?: string): void
 }
 
 export const silentReporter: Reporter = { info() {}, warn() {}, event() {}, phase() {} }
@@ -133,6 +133,29 @@ const saveDiff = (
     content: clipped,
   }
   deps.storage.records.put('artifact', artifact)
+}
+
+const saveLog = (
+  deps: ExecDeps,
+  run: SidebetRun,
+  attempt: SidebetAttempt,
+  name: string,
+  text: string,
+): void => {
+  const content =
+    text.length > 64_000 ? `[... earlier output omitted]\n${text.slice(-64_000)}` : text
+  deps.storage.records.put('artifact', {
+    id: newId('art'),
+    schemaVersion: SCHEMA_VERSION,
+    runId: run.id,
+    attemptId: attempt.id,
+    kind: 'log',
+    name,
+    mediaType: 'text/plain',
+    sha256: sha256(text),
+    sizeBytes: text.length,
+    content,
+  })
 }
 
 /** Run the agent for one attempt and persist tool events and usage. */
@@ -440,7 +463,7 @@ const executeSingle = async (
     linesAdded: lines?.added,
     linesRemoved: lines?.removed,
   })
-  deps.reporter.attempt?.(who, done.status)
+  deps.reporter.attempt?.(who, done.status, done.error)
 }
 
 const executeCompareAttempt = async (
@@ -469,7 +492,8 @@ const executeCompareAttempt = async (
     deps.reporter.attempt?.(who, 'running')
     if (deps.project.config.compare.setup) {
       deps.reporter.phase(who, `setup: ${deps.project.config.compare.setup}`)
-      await runSetup(deps.project.config.compare.setup, worktree, deps.signal)
+      const setup = await runSetup(deps.project.config.compare.setup, worktree, deps.signal)
+      saveLog(deps, run, attempt, 'setup.log', setup.output)
     }
     const ctx: AttemptContext = { deps, plan, run, attempt, model, who }
     outcome = await runAgent(ctx, worktree, undefined)
@@ -508,7 +532,7 @@ const executeCompareAttempt = async (
     }
   } finally {
     const done = finishAttempt({ deps, plan, run, attempt, model, who }, outcome, started)
-    deps.reporter.attempt?.(who, done.status)
+    deps.reporter.attempt?.(who, done.status, done.error)
     deps.storage.records.put('attempt', {
       ...done,
       worktreePath: deps.project.config.compare.keepWorktrees ? worktree : undefined,

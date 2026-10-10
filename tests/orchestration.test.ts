@@ -568,3 +568,27 @@ describe('metrics', () => {
     expect(seen).toContain('B:completed')
   })
 })
+
+describe('compare setup', () => {
+  it('runs setup non-interactively, stores its output, and fails the attempt when it exits non-zero', async () => {
+    const h = await setup(
+      { scripts: { 'fakeai/alpha': {}, 'other/beta': {} } },
+      { compare: { setup: 'echo "CI=$CI"; test -n "$CI"; echo setup-ran' } },
+    )
+    const { detail } = await execute(h, 'compare', 't')
+    expect(detail.run.status).toBe('completed')
+    const log = detail.attempts[0]?.logs.find((l) => l.name === 'setup.log')
+    expect(log?.content).toContain('CI=1')
+    expect(log?.content).toContain('setup-ran')
+    expect(h.runtime.requests).toHaveLength(2)
+
+    const bad = await setup(
+      { scripts: { 'fakeai/alpha': {}, 'other/beta': {} } },
+      { compare: { setup: 'echo boom >&2; exit 3' } },
+    )
+    const { detail: failed } = await execute(bad, 'compare', 't')
+    expect(failed.run.status).toBe('failed')
+    expect(failed.attempts[0]?.attempt.error).toMatch(/compare.setup failed \(exit 3\)/)
+    expect(bad.runtime.requests).toHaveLength(0) // no model was called on a broken tree
+  })
+})

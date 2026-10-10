@@ -17,6 +17,7 @@ export interface AttemptDetail {
   usage?: UsageMetrics
   tests: TestResult[]
   diff?: Artifact
+  logs: Artifact[]
   toolEvents: ToolEvent[]
   evaluations: Evaluation[]
 }
@@ -38,6 +39,7 @@ export const loadRunDetail = (storage: Storage, runId: string): RunDetail => {
       usage: storage.records.list('usage', f)[0],
       tests: storage.records.list('testResult', f),
       diff: storage.records.list('artifact', f).find((a) => a.kind === 'diff'),
+      logs: storage.records.list('artifact', f).filter((a) => a.kind === 'log'),
       toolEvents: storage.records.list('toolEvent', f),
       evaluations: storage.records.list('evaluation', f),
     }

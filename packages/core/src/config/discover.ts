@@ -14,6 +14,8 @@ export interface Discovery {
   languages: string[]
   packageManager?: string
   testCommand?: string
+  /** Suggested `compare` settings for this package manager, if the default (symlinked node_modules) is known not to work. */
+  compareSetup?: { linkPaths: string[]; setup: string; reason: string }
   agentsMd?: string
   rulesFiles: string[]
   skills: SkillInfo[]
@@ -77,6 +79,24 @@ export const detectTestCommand = async (
   return undefined
 }
 
+/**
+ * pnpm workspaces keep each package's dependencies in per-package node_modules, which a symlinked
+ * root node_modules does not provide; a fresh offline install from pnpm's content store is fast.
+ */
+export const suggestCompareSetup = (
+  root: string,
+  pm: string | undefined,
+): Discovery['compareSetup'] => {
+  if (pm === 'pnpm' && has(root, 'pnpm-workspace.yaml')) {
+    return {
+      linkPaths: [],
+      setup: 'pnpm install --offline --frozen-lockfile',
+      reason: 'pnpm workspace: each worktree gets its own install from the local store',
+    }
+  }
+  return undefined
+}
+
 export const discoverProject = async (root: string, runtime?: RuntimeInfo): Promise<Discovery> => {
   const pm = detectPackageManager(root)
   const rulesDir = projectRulesDir(root)
@@ -97,6 +117,7 @@ export const discoverProject = async (root: string, runtime?: RuntimeInfo): Prom
     languages: detectLanguages(root),
     packageManager: pm,
     testCommand: await detectTestCommand(root, pm),
+    compareSetup: suggestCompareSetup(root, pm),
     agentsMd: has(root, 'AGENTS.md') ? 'AGENTS.md' : undefined,
     rulesFiles,
     skills: await discoverSkills(root, runtime?.skillDirs ?? []),

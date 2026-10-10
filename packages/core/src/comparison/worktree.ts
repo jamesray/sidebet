@@ -84,22 +84,37 @@ export const createWorktree = async (
   return path
 }
 
+export interface SetupResult {
+  durationMs: number
+  /** Combined stdout/stderr, for the attempt's setup.log artifact. */
+  output: string
+}
+
+/**
+ * Run `compare.setup` in a worktree. CI=1 makes package managers non-interactive: a tool that
+ * would otherwise ask a question (and silently skip work when stdin is not a terminal) fails
+ * loudly instead, which marks the attempt failed rather than running tests on a broken tree.
+ */
 export const runSetup = async (
   command: string,
   cwd: string,
   signal?: AbortSignal,
-): Promise<void> => {
+): Promise<SetupResult> => {
+  const started = Date.now()
   const r = await exec('sh', ['-c', command], {
     cwd,
     signal,
     detached: true,
     timeoutMs: 10 * 60_000,
+    env: { ...process.env, CI: '1', FORCE_COLOR: '0', NO_COLOR: '1' },
   })
+  const output = `$ ${command}\n${r.stdout}${r.stderr ? `\n${r.stderr}` : ''}`.trim()
   if (r.code !== 0) {
     throw new SidebetError(
       `compare.setup failed (exit ${r.code}) in ${cwd}:\n${(r.stderr || r.stdout).trim().slice(-800)}`,
     )
   }
+  return { durationMs: Date.now() - started, output }
 }
 
 export const removeWorktree = async (project: ProjectContext, path: string): Promise<void> => {

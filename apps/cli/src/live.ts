@@ -40,7 +40,12 @@ const gaugeLine = (ui: Ui, g: Gauge, now: number, tick: number): string => {
   ]
   if (g.firstEditAt && g.startedAt)
     parts.push(ui.dim(`first edit ${formatDuration(g.firstEditAt - g.startedAt)}`))
-  const tail = g.status === 'running' ? ui.dim(truncate(g.current, 48)) : g.status
+  const tail =
+    g.status === 'running'
+      ? ui.dim(truncate(g.current, 48))
+      : g.status === 'completed'
+        ? g.status
+        : `${g.status}${g.current && g.current !== 'waiting' ? ui.red(`: ${truncate(g.current, 80)}`) : ''}`
   return `${icon} ${ui.bold(g.label)} ${g.model.padEnd(34)} ${parts.join(ui.dim(' · '))}  ${tail}`
 }
 
@@ -103,13 +108,14 @@ export const createLiveReporter = (
       if (x) x.current = m
       if (!tty) base.phase(who, m)
     },
-    attempt: (who, status) => {
+    attempt: (who, status, error) => {
       const x = g(who)
       if (!x) return
       x.status = status
       if (status === 'running') x.startedAt ??= Date.now()
       else x.endedAt = Date.now()
-      if (!tty) ui.err(ui.dim(`[${who.label} ${who.model}] ${status}`))
+      if (error) x.current = error
+      if (!tty) ui.err(ui.dim(`[${who.label} ${who.model}] ${status}${error ? `: ${error}` : ''}`))
       render()
     },
     event: (who, e: RuntimeEvent) => {

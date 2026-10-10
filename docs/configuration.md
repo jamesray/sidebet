@@ -30,13 +30,17 @@ Everything is optional. Invalid config fails early, naming the file and field. `
     "concurrency": 4, "timeoutSec": 900,
     "uncommitted": "snapshot",    // or "refuse"
     "linkPaths": ["node_modules"],// symlinked into each worktree, excluded from diffs
-    "setup": "pnpm install --offline",   // optional, run in each worktree first
+    "setup": "pnpm install --offline --frozen-lockfile",   // optional, run in each worktree first (non-interactive: CI=1)
     "keepWorktrees": false
   },
   "run": { "timeoutSec": 1800, "runTests": false, "dual": false },
   "policy": { /* see below */ }
 }
 ```
+
+### Worktree dependencies
+
+By default each compare worktree gets a symlink to your `node_modules` (`compare.linkPaths`), which is enough for npm and yarn projects. For a **pnpm workspace** that is not enough, because every package has its own `node_modules`; `sidebet init` detects this and writes `linkPaths: []` with `setup: "pnpm install --offline --frozen-lockfile"` (a few seconds from pnpm's local store). Setup runs with `CI=1`, its output is stored as the attempt's `setup.log`, and a non-zero exit fails the attempt before any model is called.
 
 ## Policy
 

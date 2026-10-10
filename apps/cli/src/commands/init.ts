@@ -47,6 +47,9 @@ export const initCommand = async (ctx: CliContext, args: string[]): Promise<numb
       name: found.name,
     }
     if (found.testCommand) config.tests = { command: found.testCommand }
+    if (found.compareSetup) {
+      config.compare = { linkPaths: found.compareSetup.linkPaths, setup: found.compareSetup.setup }
+    }
     await writeProjectConfig(root, config)
     wrote = true
   } else if (values.force) {
@@ -116,6 +119,7 @@ export const initCommand = async (ctx: CliContext, args: string[]): Promise<numb
   if (found.skills.length > 0) rows.push(['Skills', `${found.skills.length} detected`])
   const testCommand = project.config.tests.command ?? found.testCommand
   if (testCommand) rows.push(['Tests', testCommand])
+  if (found.compareSetup) rows.push(['Worktrees', found.compareSetup.reason])
   for (const l of table(rows)) ui.out(l)
 
   const problems: string[] = []

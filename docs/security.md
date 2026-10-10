@@ -19,6 +19,7 @@ Sidebet separates **instructions to a model** from **enforcement**. Instructions
 - **Parent-directory `AGENTS.md`** files that Pi discovers above the repo root are not inspected by Sidebet.
 - **Redaction is pattern-based**; novel secret formats will not be caught. Do not put secrets in rules or memory.
 - **Direct Pi sessions** (outside `sidebet run/compare`) get Sidebet context via the extension but no policy enforcement.
+- **`compare.linkPaths` are shared, not copied.** A symlinked `node_modules` points into your real repository, so a tool run inside a worktree (an agent's `pnpm install`, `rm -rf node_modules`) changes it for you too. Use an install step (`compare.setup`) instead of linking when the package manager makes that cheap; `sidebet init` does this for pnpm workspaces.
 - **No sandbox**: agents run as you. Compare worktrees isolate Git state, not the filesystem or network.
 - **Local data**: run records (task text, summaries, diffs, redacted context) are stored unencrypted in `~/.sidebet/sidebet.db`. Diffs may contain whatever the agent wrote.
 - Prompts and file contents go to whichever model providers you choose, exactly as with Pi.
