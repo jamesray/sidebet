@@ -105,6 +105,7 @@ Sidebet's central record is a `SidebetRun` with one or more `SidebetAttempt`s; i
 - [Roadmap](docs/roadmap.md)
 - [Examples](examples/README.md)
 - [Contributing](CONTRIBUTING.md)
+- [Guidelines: conduct and repository etiquette](GUIDELINES.md)
 
 ## Known limitations (read before trusting it)
 
