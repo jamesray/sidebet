@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for helping. Sidebet is a TypeScript monorepo (pnpm workspaces + Turborepo).
+Thanks for helping. Sidebet is a TypeScript monorepo (pnpm workspaces + Turborepo). This page covers setup and code rules; [GUIDELINES.md](GUIDELINES.md) covers conduct and etiquette for issues, pull requests, and reviews.
 
 ## Setup
 
