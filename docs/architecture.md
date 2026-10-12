@@ -11,7 +11,7 @@ Sidebet owns the environment around a coding agent (context, rules, memory, skil
 | `@sidebet/core` | Domain schemas, config, context assembly, memory logic, policy, routing, run planning/execution, worktree comparison, apply, odds | `zod` only |
 | `@sidebet/storage-local` | `Storage` over SQLite with FTS5 | core |
 | `@sidebet/runtime-pi` | `AgentRuntime` over the Pi SDK | core, Pi |
-| `@sidebet/cli` | Parsing and presentation; lazy-loads the runtime and storage. Terminal UI on `@earendil-works/pi-tui`; `sidebet ui` serves a static page from `apps/cli/web` over a read-only JSON API | all |
+| `@sidebet/cli` | Parsing and presentation; lazy-loads the runtime and storage. Terminal UI on `@earendil-works/pi-tui`; `sidebet ui` serves a static page from `apps/cli/web` over a JSON API (`apps/cli/src/server`) that calls the same core functions as the commands, with token-gated mutations on 127.0.0.1 | all |
 | `extensions/pi` | Pi commands that call the CLI | Pi types only |
 
 Dependency direction is strictly downward. `core` never imports a runtime or storage implementation, which is what makes a second runtime or a remote store possible.

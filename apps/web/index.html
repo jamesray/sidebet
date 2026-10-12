@@ -583,10 +583,12 @@ Apply these changes? [y/N] y
                 <div class="lead">
                   <h3>See everything in a browser. Locally.</h3>
                   <p>
-                    <code>sidebet ui</code> serves a read-only web view of the same records: every
-                    run, attempts side by side, metrics, per-file diffs, tool calls, test output, the
-                    exact context the model received, odds and memory. It binds to
-                    <code>127.0.0.1</code>, has no write endpoints, and adds no dependencies.
+                    <code>sidebet ui</code> serves a local web app over the same records and the
+                    same core: every run, attempts side by side, metrics, per-file diffs, tool calls,
+                    test output, the exact context the model received, odds and memory. From the
+                    page you start compares, watch them live, bet, review, apply and edit settings.
+                    It binds to <code>127.0.0.1</code>, token-protects every write, and adds no
+                    dependencies.
                   </p>
                 </div>
                 <div class="term">
@@ -595,8 +597,8 @@ Apply these changes? [y/N] y
 <span class="t-chip">▗▟<span class="t-gold">▀</span>▙▖</span>  <span class="t-accent t-bold">sidebet</span> <span class="t-dim">v0.1.0</span>  <span class="t-muted">ui · acme-shop</span>
 <span class="t-chip">▝▜<span class="t-gold">▄</span>▛▘</span>  <span class="t-muted">http://127.0.0.1:4242/</span>  <span class="t-dim">ctrl+c to stop</span>
 
-<span class="t-dim">Read-only. Serves this project's runs, attempts, diffs, context snapshots, odds and memory
-from ~/.sidebet/sidebet.db to your browser. Nothing leaves your machine.</span>
+<span class="t-dim">Local web app. Serves this project's runs, attempts, diffs, context snapshots, odds and memory
+from ~/.sidebet/sidebet.db to your browser, and starts compares from it. Nothing leaves your machine.</span>
 
 <span class="t-prompt">sidebet runs</span>
 <span class="t-dim">ID            STATUS     KIND     MODELS                     WHEN     TASK</span>
@@ -672,8 +674,8 @@ run_2d7c5e10  <span class="t-err">timeout</span>    compare  sonnet-5-5 vs gpt-5
             </article>
             <article class="feature">
               <code>sidebet ui · doctor</code>
-              <h3>Local web view, honest diagnostics</h3>
-              <p>A read-only browser view of runs, diffs, context, odds and memory on 127.0.0.1. Doctor explains what Sidebet sees and why something was refused.</p>
+              <h3>Local web app, honest diagnostics</h3>
+              <p>Start compares, watch them live, review, apply, odds and memory in a browser on 127.0.0.1, with token-protected writes. Doctor explains what Sidebet sees and why something was refused.</p>
             </article>
             <article class="feature">
               <code>pi install ./extensions/pi</code>
@@ -749,7 +751,7 @@ run_2d7c5e10  <span class="t-err">timeout</span>    compare  sonnet-5-5 vs gpt-5
                 <li>Policy: read-only, allow and deny lists, protected paths, approvals</li>
                 <li>Live dashboard, metrics table, full-screen diff viewer</li>
                 <li>Pi extension: /sidebet-compare, /sidebet-review, /sidebet-odds</li>
-                <li>Local read-only web view with <code>sidebet ui</code></li>
+                <li>Local web app with <code>sidebet ui</code>: runs, compares, review, odds, memory, settings</li>
               </ul>
             </div>
             <div class="rcol next reveal">

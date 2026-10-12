@@ -24,6 +24,17 @@ Sidebet separates **instructions to a model** from **enforcement**. Instructions
 - **Local data**: run records (task text, summaries, diffs, redacted context) are stored unencrypted in `~/.sidebet/sidebet.db`. Diffs may contain whatever the agent wrote.
 - Prompts and file contents go to whichever model providers you choose, exactly as with Pi.
 
+## Local web UI
+
+`sidebet ui` is an HTTP server on `127.0.0.1` that can start runs, apply results and edit `.sidebet/config.json`, so it defends against being driven by other websites open in the same browser:
+
+- Every mutation (`POST`, `PUT`, `DELETE`) must carry a random per-process token that only the served page knows. The custom header also forces a CORS preflight, which the server never answers with CORS headers, so a cross-origin script cannot get past it.
+- Requests whose `Origin` or `Host` is not the local server are refused (DNS rebinding).
+- The page runs under a Content-Security-Policy that allows only its own script and styles, and it never renders model output as HTML.
+- Bodies are limited to 1 MB and validated field by field.
+
+Reads carry no token: anyone with the same user account on the machine can read run history, which is the same as reading `~/.sidebet/sidebet.db`. The server runs with your permissions, like the CLI. Use `--readonly` for a viewer with no write endpoints, and do not expose the port beyond the machine (no reverse proxy, no port forwarding): the token travels in clear text on the loopback interface, and the UI has no accounts.
+
 ## Upstream advisories
 
 Sidebet depends on Pi (`@earendil-works/pi-coding-agent`). `pnpm audit` is clean at the pinned version; re-run it after upgrading Pi, since Pi's own install and export code paths (which Sidebet does not call) have had advisories in the past.

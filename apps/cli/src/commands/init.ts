@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs'
 import { createInterface } from 'node:readline/promises'
-import type { RuntimeInfo } from '@sidebet/core'
+import type { Discovery, RuntimeInfo } from '@sidebet/core'
 import {
   discoverProject,
   modelRef,
@@ -15,6 +15,20 @@ import {
 import { type CliContext, loadRuntime } from '../app.js'
 import { parse } from '../args.js'
 import { plural, table } from '../ui.js'
+
+/** The minimal config `init` writes for a project that has none: id, name, and detected test/setup values. */
+export const initialConfig = (found: Discovery): Record<string, unknown> => {
+  const config: Record<string, unknown> = {
+    version: 1,
+    projectId: newProjectId(),
+    name: found.name,
+  }
+  if (found.testCommand) config.tests = { command: found.testCommand }
+  if (found.compareSetup) {
+    config.compare = { linkPaths: found.compareSetup.linkPaths, setup: found.compareSetup.setup }
+  }
+  return config
+}
 
 export const initCommand = async (ctx: CliContext, args: string[]): Promise<number> => {
   const { values } = parse(args, { force: { type: 'boolean' }, json: { type: 'boolean' } })
@@ -41,16 +55,7 @@ export const initCommand = async (ctx: CliContext, args: string[]): Promise<numb
 
   let wrote = false
   if (!alreadyInitialized) {
-    const config: Record<string, unknown> = {
-      version: 1,
-      projectId: newProjectId(),
-      name: found.name,
-    }
-    if (found.testCommand) config.tests = { command: found.testCommand }
-    if (found.compareSetup) {
-      config.compare = { linkPaths: found.compareSetup.linkPaths, setup: found.compareSetup.setup }
-    }
-    await writeProjectConfig(root, config)
+    await writeProjectConfig(root, initialConfig(found))
     wrote = true
   } else if (values.force) {
     // --force is the explicit approval to refresh detected values; the project id is always preserved.
