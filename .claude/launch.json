@@ -6,6 +6,12 @@
       "runtimeExecutable": "python3",
       "runtimeArgs": ["-m", "http.server", "4173", "--directory", "apps/web"],
       "port": 4173
+    },
+    {
+      "name": "ui",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["apps/cli/dist/bin.js", "ui", "--no-open", "--port", "4747"],
+      "port": 4747
     }
   ]
 }

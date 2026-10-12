@@ -47,6 +47,8 @@ export interface Reporter {
   phase(who: { label: string; model: string }, message: string): void
   /** Attempt lifecycle, for live displays. */
   attempt?(who: { label: string; model: string }, status: AttemptStatus, error?: string): void
+  /** The run record exists (status running). Lets a live display link to the run before it ends. */
+  run?(run: SidebetRun): void
 }
 
 export const silentReporter: Reporter = { info() {}, warn() {}, event() {}, phase() {} }
@@ -584,6 +586,7 @@ export const executePlan = async (
     createdAt: nowIso(),
   }
   storage.records.put('run', run)
+  deps.reporter.run?.(run)
 
   try {
     if (plan.kind === 'run') {

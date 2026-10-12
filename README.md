@@ -54,7 +54,7 @@ Sidebet is built on the same terminal toolkit as Pi (`@earendil-works/pi-tui`), 
 | `sidebet runs`, `rerun` | Full history; rerun with the **original** or **current** context, stated explicitly. |
 | `sidebet odds` | Your own evidence about which model works for you. Sample sizes always shown. Tests and preference never blended. |
 | `sidebet bet A` | Record which result you expect to prefer before reviewing; `odds` tracks how often your calls match. |
-| `sidebet ui` | A local web view of every run: attempts side by side, metrics, diffs, tool calls, tests, the exact context, odds and memory. Read-only, bound to 127.0.0.1, zero extra dependencies. |
+| `sidebet ui` | The whole workflow in a local web app: start compares and runs, watch them live, bet, review, apply, rerun, memory, odds, context, policy, doctor and settings. Bound to 127.0.0.1 with token-protected writes, zero extra dependencies; `--readonly` for a viewer. |
 | `sidebet context`, `memory` | See exactly what the agent receives; persistent project/global memory with FTS5 search. |
 | `sidebet policy check`, `doctor` | Why a model or tool was denied; what is truly enforced and what is not. |
 

@@ -158,7 +158,7 @@ sidebet odds
 
 It shows, per model, how often tests passed (objective), how often you preferred it (your judgement), and typical time, tokens, and cost. Sample sizes are always shown. With three runs the numbers are anecdotes; with thirty they start to mean something.
 
-Prefer a browser? `sidebet ui` opens the same information as a local web page: every run, both attempts side by side, diffs, and odds.
+Prefer a browser? `sidebet ui` opens the same workflow as a local web app: start compares and watch them live, review and apply, bet, odds, memory, policy, doctor and settings. Add `--readonly` for a viewer.
 
 ## What to do next
 

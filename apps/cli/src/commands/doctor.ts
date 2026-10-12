@@ -6,7 +6,6 @@ import {
   dbPath,
   git,
   isGitAvailable,
-  modelRef,
   resolveProject,
   SidebetError,
   worktreeList,
@@ -15,18 +14,20 @@ import {
 import { type CliContext, loadRuntime } from '../app.js'
 import { parse } from '../args.js'
 
-type Level = 'ok' | 'warn' | 'fail'
-interface Check {
-  level: Level
+export type CheckLevel = 'ok' | 'warn' | 'fail'
+export interface Check {
+  level: CheckLevel
   title: string
   detail?: string
 }
 
-export const doctorCommand = async (ctx: CliContext, args: string[]): Promise<number> => {
-  const { values } = parse(args, { json: { type: 'boolean' } })
-  const { ui } = ctx
+/** Every doctor check, as data. Shared by `sidebet doctor` and the web UI's Doctor page. */
+export const collectChecks = async (ctx: {
+  cwd: string
+  env: NodeJS.ProcessEnv
+}): Promise<Check[]> => {
   const checks: Check[] = []
-  const add = (level: Level, title: string, detail?: string): void =>
+  const add = (level: CheckLevel, title: string, detail?: string): void =>
     void checks.push({ level, title, detail })
 
   const [maj = 0, min = 0] = process.versions.node.split('.').map(Number)
@@ -124,7 +125,6 @@ export const doctorCommand = async (ctx: CliContext, args: string[]): Promise<nu
     }
     for (const p of info.problems) add('fail', 'Runtime', p)
     for (const n of info.notes) add('warn', 'Runtime', n)
-    void modelRef
   } catch (err) {
     add('fail', 'Runtime pi failed to load', err instanceof Error ? err.message : String(err))
   }
@@ -142,7 +142,13 @@ export const doctorCommand = async (ctx: CliContext, args: string[]): Promise<nu
       )
     else add('ok', 'No leftover worktrees')
   }
+  return checks
+}
 
+export const doctorCommand = async (ctx: CliContext, args: string[]): Promise<number> => {
+  const { values } = parse(args, { json: { type: 'boolean' } })
+  const { ui } = ctx
+  const checks = await collectChecks(ctx)
   if (values.json) {
     ui.out(JSON.stringify({ checks }, null, 2))
   } else {

@@ -58,7 +58,7 @@ sidebet ui
 
 5. **Learn from your own history.** `sidebet odds` summarises, per model: runs, test pass rate (objective), how often the developer preferred it (human), acceptance rate, median time, tokens and cost, with sample sizes always shown and a head-to-head table that only uses runs where both models attempted the same task. `sidebet bet A` lets the developer record a prediction before reviewing; `odds` reports how often their calls matched their later preference. This is explicitly a measure of the developer's judgement, not of the models.
 
-6. **See everything in a browser.** `sidebet ui` serves a local, read-only web view: every run, attempts side by side, metrics, per-file diffs, tool calls, test output, the exact context the model received, odds and memory. It binds to 127.0.0.1, has no write endpoints, and adds no dependencies.
+6. **Do everything in a browser.** `sidebet ui` serves a local web app over the same core: every run, attempts side by side, metrics, per-file diffs, tool calls, test output, the exact context the model received, odds and memory, and from the page you start compares, watch them live, bet, review, apply and edit settings. It binds to 127.0.0.1, token-protects every write, adds no dependencies, and `--readonly` keeps it a viewer.
 
 Also implemented: `sidebet runs` (history), `sidebet rerun <id>` (with an explicit choice between the original context snapshot and the current context, and an honest note that outputs are not reproducible), `sidebet context` / `context inspect` (what the model would get, and why each item was included, omitted or budgeted out), `sidebet memory add|list|search|remove|suggest`, `sidebet policy check` (effective policy and an enforcement matrix that says what is enforced, partial, or unsupported), `sidebet doctor`, `sidebet models`.
 
@@ -168,7 +168,7 @@ Your calls  ◉  1/1 matched your later preference
 • Only 2 compare run(s) have a recorded human preference. Treat preference rates as anecdotes until you have more.
 ```
 
-The web UI (`sidebet ui`): dark and light screenshots can be taken from the real page; the runs list is on the left, the selected run on the right with attempt cards (cyan A, pink B), the metrics table, and tabs for diff / summary / tools / tests / context. Take real screenshots; do not mock them.
+The web UI (`sidebet ui`): dark and light screenshots can be taken from the real page; the runs list is on the left, the selected run on the right with attempt cards (cyan A, pink B), the metrics table, and tabs for diff / summary / tools / tests / context; the brand bar with the chip and the page navigation sits at the bottom. Take real screenshots; do not mock them.
 
 ## 8. Facts that constrain copy (read twice)
 
