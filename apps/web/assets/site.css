@@ -362,6 +362,19 @@ p code {
   background: var(--dim);
 }
 
+/* On phones the chip sits on its own line; the spacer forces the wrap and takes no space. */
+.eyebrow .break {
+  display: none;
+}
+
+@media (max-width: 479px) {
+  .eyebrow .break {
+    display: block;
+    flex-basis: 100%;
+    height: 0;
+  }
+}
+
 .eyebrow .tag {
   padding: 3px 9px;
   border-radius: 999px;
