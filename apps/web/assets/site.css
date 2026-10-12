@@ -1992,3 +1992,49 @@ p code {
   outline-offset: 2px;
   border-radius: 6px;
 }
+
+/* ---------- Web UI screenshots ---------- */
+
+.shots {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.shot {
+  margin: 0;
+  background: var(--panel);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.shot.main {
+  grid-column: 1 / -1;
+}
+
+.shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-bottom: 1px solid rgba(255,255,255,.12);
+}
+
+.shot figcaption {
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.shots-note {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--dim);
+}
+
+@media (max-width: 760px) {
+  .shots {
+    grid-template-columns: 1fr;
+  }
+}

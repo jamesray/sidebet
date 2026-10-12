@@ -219,9 +219,14 @@ const state = {
 }
 
 const route = () => {
-  const parts = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean)
+  const [path, search = ''] = location.hash.replace(/^#\/?/, '').split('?')
+  const parts = path.split('/').filter(Boolean)
   const view = VIEWS.includes(parts[0]) ? parts[0] : 'runs'
-  return { view, id: parts[1] ? decodeURIComponent(parts[1]) : undefined }
+  return {
+    view,
+    id: parts[1] ? decodeURIComponent(parts[1]) : undefined,
+    query: new URLSearchParams(search),
+  }
 }
 const go = (path) => {
   location.hash = path
@@ -1727,7 +1732,25 @@ const renderPlan = (plan) => {
   )
 }
 
-const renderNewView = async () => {
+/** Prefill the form from `#/new?task=…&models=a,b&kind=run&readonly=1&preview=1`. */
+const applyNewQuery = (q) => {
+  const d = state.draft
+  if (!q || ![...q.keys()].length) return false
+  if (q.get('task')) d.task = q.get('task')
+  if (q.get('kind') === 'run' || q.get('kind') === 'compare') d.kind = q.get('kind')
+  if (q.get('models'))
+    d.models = q
+      .get('models')
+      .split(',')
+      .map((x) => x.trim())
+      .filter(Boolean)
+  if (q.has('readonly')) d.readonly = q.get('readonly') !== '0'
+  if (q.get('timeoutSec')) d.timeoutSec = q.get('timeoutSec')
+  d.plan = null
+  return q.get('preview') === '1'
+}
+
+const renderNewView = async (query) => {
   const main = $('#main')
   main.dataset.view = 'new'
   main.className = ''
@@ -1753,7 +1776,10 @@ const renderNewView = async () => {
       return page.replaceChildren(h('div', { class: 'note err' }, e.message))
     }
   }
+  const preview = applyNewQuery(query)
+  if (state.draft.models) state.draft.models = state.draft.models.map((m) => resolveRef(m) ?? m)
   renderNewForm(page)
+  if (preview) $('#previewPlan')?.click()
 }
 
 const renderNewForm = (page) => {
@@ -1876,6 +1902,7 @@ const renderNewForm = (page) => {
   const previewBtn = h(
     'button',
     {
+      id: 'previewPlan',
       onclick: async () => {
         previewBtn.disabled = true
         try {
@@ -3251,13 +3278,13 @@ const renderSettingsView = async () => {
 // ---------- routing, polling, clock ----------
 
 const render = async () => {
-  const { view, id } = route()
+  const { view, id, query } = route()
   state.view = view
   renderChrome()
   if (view !== 'runs') $('#main').className = ''
   try {
     if (view === 'runs') await renderRunsView(id)
-    else if (view === 'new') await renderNewView()
+    else if (view === 'new') await renderNewView(query)
     else if (view === 'odds') await renderOddsView()
     else if (view === 'memory') await renderMemoryView()
     else if (view === 'context') await renderContextView()

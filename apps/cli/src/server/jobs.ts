@@ -185,6 +185,7 @@ export class JobRunner {
         g.status = status
         if (status === 'running') {
           g.startedAt ??= nowIso()
+          g.current = 'waiting for the model'
           started.set(who.label, Date.now())
         } else g.endedAt = nowIso()
         if (error) g.error = error

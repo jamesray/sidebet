@@ -72,7 +72,7 @@ const LANES = {
     tools: 21,
     tokens: 61700,
     outRatio: 0.062,
-    cost: undefined,
+    cost: 0.34,
     blocked: 1,
     blockedAt: 58,
     script: [

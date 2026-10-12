@@ -171,7 +171,7 @@
                     <div class="row"><span class="k">tokens</span><span><span data-f="tokens">0</span>  <span class="t-dim" data-f="io">↑0 ↓0</span></span></div>
                     <div class="row"><span class="k">turns</span><span><span data-f="turns">0</span>  <span class="spark" data-f="spark"></span></span></div>
                     <div class="row"><span class="k">tools</span><span><span data-f="tools">0</span>  <span class="t-err" data-f="blocked"></span></span></div>
-                    <div class="row"><span class="k">cost</span><span data-f="cost" class="t-dim">cost n/a</span></div>
+                    <div class="row"><span class="k">cost</span><span data-f="cost">$0.00</span></div>
                     <div class="activity" data-f="activity">creating worktree</div>
                   </div>
                   <div class="card" data-lane="b" data-card="b">
@@ -183,7 +183,7 @@
                     <div class="row"><span class="k">tokens</span><span><span data-f="tokens">0</span>  <span class="t-dim" data-f="io">↑0 ↓0</span></span></div>
                     <div class="row"><span class="k">turns</span><span><span data-f="turns">0</span>  <span class="spark" data-f="spark"></span></span></div>
                     <div class="row"><span class="k">tools</span><span><span data-f="tools">0</span>  <span class="t-err" data-f="blocked"></span></span></div>
-                    <div class="row"><span class="k">cost</span><span data-f="cost" class="t-dim">cost n/a</span></div>
+                    <div class="row"><span class="k">cost</span><span data-f="cost">$0.00</span></div>
                     <div class="activity" data-f="activity">creating worktree</div>
                   </div>
                 </div>
@@ -192,8 +192,9 @@
                   <div class="ln"><span class="t-accent t-bold">Compare</span> <span class="t-dim">run_7f3a9c21</span>  <span class="t-ok">completed</span></div>
                   <div class="ln">&nbsp;</div>
                   <div class="ln">  <span class="t-a t-bold">A</span>  <span class="t-a">anthropic/claude-sonnet-5-5</span>  <span class="t-ok">completed</span>  2 files changed  tests: <span class="t-ok">passed (14 passed)</span>  2m 58s  6 turns, 14 tools  48.2k tokens  $0.21</div>
-                  <div class="ln">  <span class="t-b t-bold">B</span>  <span class="t-b">openai/gpt-5.5</span>               <span class="t-ok">completed</span>  3 files changed  tests: <span class="t-ok">passed (14 passed)</span>  3m 31s  9 turns, 21 tools  61.7k tokens  cost n/a</div>
+                  <div class="ln">  <span class="t-b t-bold">B</span>  <span class="t-b">openai/gpt-5.5</span>               <span class="t-ok">completed</span>  3 files changed  tests: <span class="t-ok">passed (14 passed)</span>  3m 31s  9 turns, 21 tools  61.7k tokens  $0.34</div>
                   <div class="ln">  <span class="t-warn">B: 1 tool call blocked by policy</span></div>
+                  <div class="ln">  <span class="t-dim">Same tests passed. A used 22% fewer tokens and cost</span> <span class="t-ok">$0.13 less</span><span class="t-dim">.</span></div>
                   <div class="ln">&nbsp;</div>
                   <div class="ln"><span class="t-dim">next</span>  <span class="t-accent">sidebet review run_7f3a9c21</span>   <span class="t-dim">your working tree was not modified</span></div>
                 </div>
@@ -492,14 +493,14 @@ Comparing <span class="t-a">anthropic/claude-sonnet-5-5</span> vs <span class="t
     <tr><th>Input tokens</th><td>45.1k <span class="best">◂</span></td><td>57.9k</td></tr>
     <tr><th>Output tokens</th><td>3.1k <span class="best">◂</span></td><td>3.8k</td></tr>
     <tr><th>Total tokens</th><td>48.2k <span class="best">◂</span></td><td>61.7k</td></tr>
-    <tr><th>Cost</th><td>$0.21</td><td>not reported</td></tr>
+    <tr><th>Cost</th><td>$0.21 <span class="best">◂</span></td><td>$0.34</td></tr>
     <tr><th>Files changed</th><td>2</td><td>3</td></tr>
     <tr><th>Lines +/-</th><td>+38 / -12</td><td>+71 / -19</td></tr>
     <tr><th>Tests</th><td><span class="t-ok">passed (14 passed)</span></td><td><span class="t-ok">passed (14 passed)</span></td></tr>
   </tbody>
 </table>
 <pre>  <span class="t-dim">◂ marks the better value for that single metric; metrics are not combined into a score.</span>
-  <span class="t-dim">Cost is what the runtime reported; subscription logins often report none, and nothing is estimated.</span>
+  <span class="t-dim">Cost is what the runtime reported, never estimated; some subscription logins report none.</span>
 
 <span class="t-dim">next</span>  <span class="t-accent">sidebet review run_7f3a9c21</span>   <span class="t-dim">your working tree was not modified</span></pre></div>
                 </div>
@@ -563,8 +564,8 @@ Apply these changes? [y/N] y
 <span class="t-chip">▝▜<span class="t-gold">▄</span>▛▘</span>  <span class="t-muted">31 finished runs · 31 compare · 26 with a recorded preference</span>
 
 <span class="t-dim">Model                        Runs  Tests passed (objective)  Preferred (human)      Accepted     Median time  Median tokens  Median cost</span>
-<span class="t-a">anthropic/claude-sonnet-5-5</span>  31    <span class="bar"><span class="f">███████</span><span class="e">░</span></span> 27/31 (87%)      <span class="bar pref"><span class="f">██████</span><span class="e">░░</span></span> 19/26 (73%)  22/26 (85%)  3m 04s       52.1k          $0.24
-<span class="t-b">openai/gpt-5.5</span>               31    <span class="bar"><span class="f">██████</span><span class="e">░░</span></span> 24/31 (77%)      <span class="bar pref"><span class="f">██</span><span class="e">░░░░░░</span></span> 7/26 (27%)   18/26 (69%)  3m 48s       64.9k          n/a
+<span class="t-a">anthropic/claude-sonnet-5-5</span>  31    <span class="bar"><span class="f">███████</span><span class="e">░</span></span> 27/31 (87%)      <span class="bar pref"><span class="f">██████</span><span class="e">░░</span></span> 19/26 (73%)  22/26 (85%)  3m 04s       52.1k          $0.24 (n=31)
+<span class="t-b">openai/gpt-5.5</span>               31    <span class="bar"><span class="f">██████</span><span class="e">░░</span></span> 24/31 (77%)      <span class="bar pref"><span class="f">██</span><span class="e">░░░░░░</span></span> 7/26 (27%)   18/26 (69%)  3m 48s       64.9k          $0.37 (n=31)
 
 <span class="t-bold">Head-to-head</span> <span class="t-dim">(same task, both attempted)</span>
   claude-sonnet-5-5 vs gpt-5.5: 31 runs; preferred 19-7; tests: 22 both passed, 5 only sonnet, 2 only gpt-5.5, 2 both failed <span class="t-dim">(n=31)</span>
@@ -591,22 +592,22 @@ Apply these changes? [y/N] y
                     dependencies.
                   </p>
                 </div>
-                <div class="term">
-                  <div class="term-bar"><div class="dots" aria-hidden="true"><i></i><i></i><i></i></div><span class="title">~/acme-shop</span><span class="cmd">ui</span></div>
-                  <div class="term-body"><pre><span class="t-prompt">sidebet ui</span>
-<span class="t-chip">▗▟<span class="t-gold">▀</span>▙▖</span>  <span class="t-accent t-bold">sidebet</span> <span class="t-dim">v0.1.0</span>  <span class="t-muted">ui · acme-shop</span>
-<span class="t-chip">▝▜<span class="t-gold">▄</span>▛▘</span>  <span class="t-muted">http://127.0.0.1:4242/</span>  <span class="t-dim">ctrl+c to stop</span>
-
-<span class="t-dim">Local web app. Serves this project's runs, attempts, diffs, context snapshots, odds and memory
-from ~/.sidebet/sidebet.db to your browser, and starts compares from it. Nothing leaves your machine.</span>
-
-<span class="t-prompt">sidebet runs</span>
-<span class="t-dim">ID            STATUS     KIND     MODELS                     WHEN     TASK</span>
-run_7f3a9c21  <span class="t-ok">completed</span>  compare  sonnet-5-5 vs gpt-5.5      2m ago   Make search case-insensitive and add a test for it
-run_c41e08d2  <span class="t-ok">completed</span>  compare  sonnet-5-5 vs gpt-5.5      3h ago   Add input validation to the checkout endpoint
-run_9be0a7f3  <span class="t-ok">completed</span>  run      sonnet-5-5                 1d ago   Explain the auth flow <span class="t-dim">read-only</span>
-run_2d7c5e10  <span class="t-err">timeout</span>    compare  sonnet-5-5 vs gpt-5.5      2d ago   Migrate the search index to the new schema</pre></div>
+                <div class="shots" aria-label="Screenshots of the local web UI">
+                  <figure class="shot main">
+                    <img src="assets/ui-run.png" alt="Sidebet web UI showing a finished compare: the runs list on the left; on the right attempts A and B side by side with files, tests, time, tokens and cost, the review actions, and the resolved call" width="1440" height="900" loading="lazy" decoding="async" />
+                    <figcaption>A finished compare: attempts side by side, your call resolved against your review, apply with a backup ref, then the metrics table and per-file diffs.</figcaption>
+                  </figure>
+                  <figure class="shot">
+                    <img src="assets/ui-live.png" alt="Sidebet web UI while a compare is running: a live panel with one card per attempt showing elapsed time, tokens, turns, tool calls, cost and current activity, with a cancel button and an event log" width="1440" height="900" loading="lazy" decoding="async" />
+                    <figcaption>Live while it runs: per attempt, elapsed time, tokens, turns, tool calls, cost as reported and the current tool, with Cancel.</figcaption>
+                  </figure>
+                  <figure class="shot">
+                    <img src="assets/ui-new.png" alt="Sidebet web UI New run page: a task field, a Compare or Single run switch, a model picker showing policy eligibility, options, and Preview plan and Start compare buttons" width="1440" height="900" loading="lazy" decoding="async" />
+                    <figcaption>Start from the page: models with their policy eligibility, options, and a plan preview before anything runs.</figcaption>
+                  </figure>
+                  <p class="shots-note">Real screenshots of <code>sidebet ui</code> against the example project with the offline runtime; the figures are illustrative, not a benchmark of the named models.</p>
                 </div>
+              </div>
               </div>
             </div>
           </div>
