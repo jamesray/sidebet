@@ -235,7 +235,7 @@
             <h2>One agent. One answer. No way to know if it was the best one.</h2>
             <p>
               If you use an AI coding agent every day, with Claude Code, Codex, Cursor, Pi or
-              anything else, you have probably felt all three of these.
+              anything else, you have probably run into all three of these.
             </p>
           </div>
           <div class="grid-3">
@@ -268,7 +268,7 @@
               <h3>Nobody keeps score.</h3>
               <p class="pain">
                 Which model passes your tests more often? Which one do you actually prefer once you
-                read the diff? Today that is a feeling.
+                read the diff? Right now that is a hunch.
               </p>
               <p class="fix">
                 Every run is recorded. <code>sidebet odds</code> shows pass rates, your preferences
@@ -318,7 +318,7 @@
             </div>
             <div class="stack-text reveal">
               <h3>What Sidebet is not</h3>
-              <p>Saying this plainly is the point.</p>
+              <p>Worth saying plainly.</p>
               <ul>
                 <li>
                   <span><strong>Not a model, a proxy or an inference layer.</strong> Prompts go to the
@@ -352,10 +352,10 @@
         <div class="wrap">
           <div class="section-head reveal">
             <p class="kicker">How it works</p>
-            <h2>Six commands, from a fresh repo to evidence.</h2>
+            <h2>Six commands, from a fresh repo to your first real comparison.</h2>
             <p>
-              Everything below is implemented and tested today. The output shown is illustrative; the
-              models are examples.
+              Everything below works today and has tests behind it. The output is illustrative and
+            the models are just examples.
             </p>
           </div>
 
@@ -595,17 +595,17 @@ Apply these changes? [y/N] y
                 <div class="shots" aria-label="Screenshots of the local web UI">
                   <figure class="shot main">
                     <img src="assets/ui-run.png" alt="Sidebet web UI showing a finished compare: the runs list on the left; on the right attempts A and B side by side with files, tests, time, tokens and cost, the review actions, and the resolved call" width="1440" height="900" loading="lazy" decoding="async" />
-                    <figcaption>A finished compare: attempts side by side, your call resolved against your review, apply with a backup ref, then the metrics table and per-file diffs.</figcaption>
+                    <figcaption>A finished compare: both attempts side by side, the call you made before reading the diffs and whether it held up, apply with a backup ref, then the metrics and per-file diffs.</figcaption>
                   </figure>
                   <figure class="shot">
                     <img src="assets/ui-live.png" alt="Sidebet web UI while a compare is running: a live panel with one card per attempt showing elapsed time, tokens, turns, tool calls, cost and current activity, with a cancel button and an event log" width="1440" height="900" loading="lazy" decoding="async" />
-                    <figcaption>Live while it runs: per attempt, elapsed time, tokens, turns, tool calls, cost as reported and the current tool, with Cancel.</figcaption>
+                    <figcaption>While it runs: elapsed time, tokens, turns, tool calls, cost and the current tool for each attempt, and a Cancel button that keeps the partial work.</figcaption>
                   </figure>
                   <figure class="shot">
                     <img src="assets/ui-new.png" alt="Sidebet web UI New run page: a task field, a Compare or Single run switch, a model picker showing policy eligibility, options, and Preview plan and Start compare buttons" width="1440" height="900" loading="lazy" decoding="async" />
-                    <figcaption>Start from the page: models with their policy eligibility, options, and a plan preview before anything runs.</figcaption>
+                    <figcaption>Starting from the page: pick models (policy tells you which are allowed), set options, and preview the plan before anything runs.</figcaption>
                   </figure>
-                  <p class="shots-note">Real screenshots of <code>sidebet ui</code> against the example project with the offline runtime; the figures are illustrative, not a benchmark of the named models.</p>
+                  <p class="shots-note">These are real screenshots of <code>sidebet ui</code> on the example project, taken with the offline runtime, so the numbers are illustrative rather than a benchmark of the models named.</p>
                 </div>
               </div>
               </div>
@@ -620,7 +620,7 @@ Apply these changes? [y/N] y
           <div class="section-head reveal">
             <p class="kicker">Everything around the agent</p>
             <h2>The harness, command by command.</h2>
-            <p>Each of these exists today and is covered by tests that run without paid model calls.</p>
+            <p>All of this exists today, with tests that run without paying for a single model call.</p>
           </div>
           <div class="features reveal">
             <article class="feature">
@@ -656,7 +656,7 @@ Apply these changes? [y/N] y
             <article class="feature">
               <code>sidebet runs · rerun</code>
               <h3>History you can replay</h3>
-              <p>Every run, attempt and diff. Rerun with the original context snapshot or the current one, stated explicitly. Inputs are reproduced, not outputs.</p>
+              <p>Every run, attempt and diff. Rerun with the original context snapshot or the current one, stated explicitly. It repeats the inputs; it cannot promise the same output.</p>
             </article>
             <article class="feature">
               <code>sidebet context</code>
@@ -696,7 +696,8 @@ Apply these changes? [y/N] y
             <p>
               Sidebet separates <strong>instructions to a model</strong> from
               <strong>enforcement in code</strong>. A model can ignore an instruction. It cannot
-              ignore a hook that blocks the tool call before it runs. Here is which is which.
+              ignore a hook that blocks the tool call before it runs. The two lists below keep
+              those apart, so you know which kind of guarantee you are getting.
             </p>
           </div>
           <div class="trust">
@@ -711,11 +712,11 @@ Apply these changes? [y/N] y
               </ul>
             </div>
             <div class="tcol no reveal">
-              <h3><span class="mark">!</span> Not enforced. Be aware.</h3>
+              <h3><span class="mark">!</span> Not enforced. Know this going in.</h3>
               <ul>
                 <li><strong>A shell can read anything.</strong> Commands that literally name a protected path are blocked, best effort. <code>policy.strict</code> removes bash entirely.</li>
                 <li><strong>Pi extensions and skills run with your permissions</strong>, outside Sidebet policy except in read-only mode.</li>
-                <li><strong>Redaction is pattern-based.</strong> Novel secret formats will not be caught. Do not put secrets in rules or memory.</li>
+                <li><strong>Redaction is pattern-based.</strong> Anything that does not match a known pattern gets through. Do not put secrets in rules or memory.</li>
                 <li><strong>No sandbox.</strong> Agents run as you. Worktrees isolate Git state, not the filesystem or the network.</li>
                 <li><strong>Local data is unencrypted.</strong> Run records, diffs and redacted context live in <code>~/.sidebet/sidebet.db</code>. Prompts go to the providers you chose, exactly as with Pi.</li>
               </ul>
